@@ -6,7 +6,7 @@ import * as z from "zod";
 
 const ENDPOINT = {
   LOGIN: "/Auth/Login",
-  REGISTER: "/auth/register",
+  REGISTER: "/Auth/Register",
 };
 
 export const login = async (values: z.infer<typeof LoginSchema>) => {
@@ -27,10 +27,11 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
 
 export const register = async (values: z.infer<typeof RegisterSchema>) => {
   return await axiosClient.post(ENDPOINT.REGISTER, {
-    userName: values.username,
     email: values.email,
-    password: values.password,
-    fullname: values.fullname,
-    roleId: values.role,
+    passwordHash: values.password,
+    userName: values.username,
+    fullName: values.fullname,
+    phoneNumber: values.phoneNumber,
+    roleId: 3,
   });
 };

@@ -24,5 +24,8 @@ export const RegisterSchema = z.object({
       /[!@#$%^&*]/,
       "Password must contain at least one special character"
     ),
-  role: z.string({ required_error: "Please select your role" }),
+
+  phoneNumber: z.string().refine((val) => /^0\d{9}$/.test(val), {
+    message: "Phone number must start with 0 and have exactly 10 digits",
+  }),
 });

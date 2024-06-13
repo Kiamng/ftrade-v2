@@ -11,6 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -82,12 +83,17 @@ export default function UserAuthForm() {
               </FormItem>
             )}
           />
-
           <Button disabled={loading} className="ml-auto w-full" type="submit">
             Login
           </Button>
         </form>
       </Form>
+      <div className="flex flex-col gap-y-2">
+        <p className="text-sm">Do not have an account ? Join us :</p>
+        <Button disabled={loading} className="ml-auto w-full">
+          <Link href="/auth/register">Register</Link>
+        </Button>
+      </div>
     </>
   );
 }
