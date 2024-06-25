@@ -29,25 +29,14 @@ const Header = () => {
         placeholder="What are you looking for ?"
       ></Input>
       <div className="flex flex-row gap-x-4">
-        {!session ? (
-          <div className="right-nav-bar flex flex-row">
-            <Button variant="outline">
-              <Link href="/auth/login">Login</Link>
-            </Button>
-            <Button variant="outline" className="ml-2">
-              <Link href="/auth/register">Register</Link>
-            </Button>
-          </div>
-        ) : (
-          <div className="flex items-center space-x-2">
-            <Button variant="default" size="icon" className="rounded-full">
-              <Link href="/product">
-                <Plus />
-              </Link>
-            </Button>
-            <LoggedUser />
-          </div>
-        )}
+        <div className="flex items-center space-x-2">
+          <Button variant="default" size="icon" className="rounded-full">
+            <Link href="/product">
+              <Plus />
+            </Link>
+          </Button>
+          <LoggedUser />
+        </div>
       </div>
     </div>
   );

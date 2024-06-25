@@ -35,7 +35,6 @@ export const RegisterForm = () => {
   });
 
   const { toast } = useToast();
-  console.log("Component rendered");
   const onSubmit = async (values: z.infer<typeof RegisterSchema>) => {
     try {
       setIsPending(!isPending);

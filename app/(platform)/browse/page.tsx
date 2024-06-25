@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { getProductByStatus } from "../../api/product/product.api";
 import { link } from "fs";
 import { LoaderCircle } from "lucide-react";
+import ProductSectionLoadingPage from "../product/_components/product-section-loading";
 
 export default function Browse() {
   const [productList, setProductList] = useState<Product[]>([]);
@@ -21,7 +22,7 @@ export default function Browse() {
     const fetchData = async () => {
       try {
         setIsLoading(!isLoading);
-        const response = await getProductByStatus("Approved", 1, 8);
+        const response = await getProductByStatus("Approved", 1, 8, "true");
         setProductList(response.items);
         setProductListInfor(response);
       } catch (error) {
@@ -37,7 +38,12 @@ export default function Browse() {
   const handleViewMore = async () => {
     setViewMoreLoading(true);
     try {
-      const response = await getProductByStatus("Approved", currentPage + 1, 8);
+      const response = await getProductByStatus(
+        "Approved",
+        currentPage + 1,
+        8,
+        "true"
+      );
       setCurrentPage(currentPage + 1);
       setProductList((prevProductList) => [
         ...prevProductList,
@@ -64,13 +70,21 @@ export default function Browse() {
 
       <div className="w-[1200px] mx-auto space-y-4 mt-[40px]">
         <h2 className="text-3xl font-semibold mx-auto">List of products</h2>
-        <div className="grid grid-cols-4 gap-y-7 mx-auto pb-4 border-b-[2px] border-t-[2px] border-slate-200">
-          {productList?.map((data) => (
-            <div key={data.productId}>
-              <ProductSection data={data} />
-            </div>
-          ))}
-        </div>
+
+        {isLoading ? (
+          <div className="grid grid-cols-4 gap-y-7 mx-auto pb-4 border-b-[2px] border-t-[2px] border-slate-200">
+            <ProductSectionLoadingPage /> <ProductSectionLoadingPage />
+            <ProductSectionLoadingPage /> <ProductSectionLoadingPage />
+          </div>
+        ) : (
+          <div className="grid grid-cols-4 gap-y-7 mx-auto pb-4 border-b-[2px] border-t-[2px] border-slate-200">
+            {productList?.map((data) => (
+              <div key={data.productId}>
+                <ProductSection data={data} />
+              </div>
+            ))}
+          </div>
+        )}
         {viewMoreLoading && <LoaderCircle className="animate-spin mx-auto" />}
         <div className="w-full flex justify-center">
           {currentPage === productListInfor?.totalPages ? (
