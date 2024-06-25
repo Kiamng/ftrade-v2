@@ -2,6 +2,8 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import UserAuthForm from "@/components/auth/user-auth-form";
+import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation";
+import { Highlight } from "@/components/ui/hero-highlight";
 
 export default function AuthenticationPage() {
   return (

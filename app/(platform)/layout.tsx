@@ -1,4 +1,5 @@
 import Header from "@/components/landing-page/header";
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata = {
   title: "Next.js",
@@ -14,6 +15,7 @@ export default function RootLayout({
     <div>
       <Header />
       {children}
+      <Toaster />
     </div>
   );
 }

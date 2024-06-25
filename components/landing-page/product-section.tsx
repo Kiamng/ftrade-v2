@@ -34,7 +34,7 @@ const ProductSection = ({ data }: ProductSectionProps) => {
       <div className="bg-slate-100 p-4 rounded-2xl text-sm min-h-[100px]">
         {data.description}
       </div>
-      <Button>BUY NOW</Button>
+      <Button>VIEW DETAIL</Button>
     </div>
   );
 };

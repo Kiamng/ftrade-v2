@@ -29,3 +29,19 @@ export const RegisterSchema = z.object({
     message: "Phone number must start with 0 and have exactly 10 digits",
   }),
 });
+
+export const createProductSchema = z.object({
+  title: z.string().min(10, "Title needs a minimum length of 10"),
+  description: z.string().min(15, "Description needs a minimum length of 15"),
+  imagePro: z.any(),
+  price: z.coerce.number().nonnegative("Price cannot be negative"),
+  categoryId: z.string().min(1, "Category is required"),
+  quantity: z.coerce
+    .number()
+    .positive("Quantity can not be 0 or negative")
+    .refine((value) => value !== 0, {
+      message: "Quantity cannot be 0",
+    }),
+  cityId: z.string().min(1, "City is required"),
+  genreId: z.string().min(1, "Genre is required"),
+});
