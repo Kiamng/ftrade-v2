@@ -6,6 +6,7 @@ import * as z from "zod";
 export const END_POINT = {
   GET_ALL: "/Product/GetAllProduct?",
   CREATE_PRODUCT: "/Product/CreateProduct",
+  GET_PRODUCT: "/Product/GetProductById",
 };
 
 export const getProductByStatus = async (
@@ -32,9 +33,14 @@ export const createProduct = async (
     categoryId: values.categoryId,
     quantity: values.quantity,
     cityId: values.cityId,
-    status: "Pending",
+    status: "Approved",
     genreId: values.genreId,
     isDisplay: "true",
   });
+  return response.data;
+};
+
+export const getProductById = async (id: string): Promise<Product> => {
+  const response = await axiosClient.get(`${END_POINT.GET_PRODUCT}?id=${id}`);
   return response.data;
 };

@@ -15,6 +15,7 @@ import {
 import { Button } from "./ui/button";
 import { UserRound } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
+import Link from "next/link";
 interface LoggedUserProps {}
 
 const LoggedUser = () => {
@@ -31,10 +32,13 @@ const LoggedUser = () => {
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            Profile
-            <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-          </DropdownMenuItem>
+          <Link href="/profile">
+            <DropdownMenuItem>
+              Profile
+              <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </Link>
+
           <DropdownMenuItem>
             Billing
             <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>

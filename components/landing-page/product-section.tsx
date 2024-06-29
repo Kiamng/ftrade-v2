@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "../ui/button";
 import { Product } from "@/types/product";
 import macbook from "@/assets/img/product/macbook.png";
+import Link from "next/link";
 
 interface ProductSectionProps {
   data: Product;
@@ -34,7 +35,9 @@ const ProductSection = ({ data }: ProductSectionProps) => {
       <div className="bg-slate-100 p-4 rounded-2xl text-sm min-h-[100px]">
         {data.description}
       </div>
-      <Button>VIEW DETAIL</Button>
+      <Link href={`/product/${data.productId}`}>
+        <Button className="font-semibold w-full">VIEW DETAIL</Button>
+      </Link>
     </div>
   );
 };
