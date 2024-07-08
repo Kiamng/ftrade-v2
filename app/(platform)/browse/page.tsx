@@ -10,6 +10,8 @@ import { getProductByStatus } from "../../api/product/product.api";
 import { link } from "fs";
 import { LoaderCircle } from "lucide-react";
 import ProductSectionLoadingPage from "../product/_components/product-section-loading";
+import { Separator } from "@/components/ui/separator";
+import { useSession } from "next-auth/react";
 
 export default function Browse() {
   const [productList, setProductList] = useState<Product[]>([]);
@@ -17,12 +19,18 @@ export default function Browse() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [viewMoreLoading, setViewMoreLoading] = useState<boolean>(false);
-
+  const session = useSession();
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(!isLoading);
-        const response = await getProductByStatus("Approved", 1, 8, "true");
+        const response = await getProductByStatus(
+          "Approved",
+          1,
+          8,
+          "true",
+          session.data?.user?.token as string
+        );
         setProductList(response.items);
         setProductListInfor(response);
       } catch (error) {
@@ -42,7 +50,8 @@ export default function Browse() {
         "Approved",
         currentPage + 1,
         8,
-        "true"
+        "true",
+        session.data?.user?.token as string
       );
       setCurrentPage(currentPage + 1);
       setProductList((prevProductList) => [
@@ -68,16 +77,16 @@ export default function Browse() {
         </div>
       </BackgroundGradientAnimation>
 
-      <div className="w-[1200px] mx-auto space-y-4 mt-[40px]">
+      <div className="w-[1400px] mx-auto space-y-4 mt-[40px]">
         <h2 className="text-3xl font-semibold mx-auto">List of products</h2>
-
+        <Separator />
         {isLoading ? (
-          <div className="grid grid-cols-4 gap-y-7 mx-auto pb-4 border-b-[2px] border-t-[2px] border-slate-200">
+          <div className="grid grid-cols-4 gap-y-7 gap-x-2 mx-auto pb-4  border-slate-200">
             <ProductSectionLoadingPage /> <ProductSectionLoadingPage />
             <ProductSectionLoadingPage /> <ProductSectionLoadingPage />
           </div>
         ) : (
-          <div className="grid grid-cols-4 gap-y-7 mx-auto pb-4 border-b-[2px] border-t-[2px] border-slate-200">
+          <div className=" grid grid-cols-4 gap-y-7 gap-x-2 mx-auto pb-4  border-slate-200">
             {productList?.map((data) => (
               <div key={data.productId}>
                 <ProductSection data={data} />
@@ -85,6 +94,7 @@ export default function Browse() {
             ))}
           </div>
         )}
+        <Separator />
         {viewMoreLoading && <LoaderCircle className="animate-spin mx-auto" />}
         <div className="w-full flex justify-center">
           {currentPage === productListInfor?.totalPages ? (

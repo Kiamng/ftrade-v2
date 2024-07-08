@@ -46,8 +46,12 @@ import { getImageData } from "@/actions/getImage";
 import Image from "next/image";
 import defaultImg from "@/assets/img/product/default-img.webp";
 import CreateFormLoading from "./create-form-loading";
+import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/components/ui/use-toast";
+import { useSession } from "next-auth/react";
 
 const ProductCreateForm = () => {
+  const { toast } = useToast();
   const [isPending, setIsPending] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isFree, setIsFree] = useState<boolean>(false);
@@ -56,6 +60,9 @@ const ProductCreateForm = () => {
   const [cities, setCities] = useState<City[]>([]);
   const [preview, setPreview] = useState("");
   const [imageState, setImageState] = useState<File>();
+  const session = useSession();
+  const token = session.data?.user?.token;
+  const userId = session.data?.user?.id;
 
   const form = useForm<z.infer<typeof createProductSchema>>({
     resolver: zodResolver(createProductSchema),
@@ -72,40 +79,23 @@ const ProductCreateForm = () => {
     },
   });
   useEffect(() => {
-    setIsLoading(!isLoading);
-    const getGenre = async () => {
+    const fetchData = async () => {
       try {
-        const allGenre = await getAllGenre();
+        setIsLoading(true);
+        const allGenre = await getAllGenre(token as string);
         setGenres(allGenre);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    const getCategory = async () => {
-      try {
-        const allCategory = await getAllCategories();
-
+        const allCategory = await getAllCategories(token as string);
         setCategories(allCategory);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    const getCity = async () => {
-      try {
-        const allCity = await getAllCities();
-
+        const allCity = await getAllCities(token as string);
         setCities(allCity);
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    setIsLoading(false);
-    getGenre();
-    getCategory();
-    getCity();
+    fetchData();
   }, []);
 
   const handleGenre = (genreName: string) => {
@@ -126,8 +116,12 @@ const ProductCreateForm = () => {
         const newFormData = { ...values, imagePro: ImgResponse.data.fileUri };
 
         if (ImgResponse.status === 200) {
-          const createResponse = await CreateProduct(newFormData);
-          console.log("success");
+          const createResponse = await CreateProduct(
+            newFormData,
+            userId as string,
+            token as string
+          );
+          console.log(createResponse);
         } else {
           console.log("failed");
         }
@@ -173,47 +167,98 @@ const ProductCreateForm = () => {
   }
 
   return (
-    <div className="w-full flex justify-center">
-      <Card className="w-[500px]">
+    <div className="mt-[20px] w-full flex justify-center">
+      <Card className="w-[1000px]">
         <CardHeader>
           <CardTitle>Create Product</CardTitle>
           <CardDescription>
             Fill your product information then submit
           </CardDescription>
+          <Separator />
         </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
-              <div className="grid w-full items-center gap-4">
-                <div className="flex flex-col space-y-4">
-                  <div className="flex justify-between">
-                    <FormField
-                      control={form.control}
-                      name="categoryId"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Category</FormLabel>
-                          <FormControl>
+              <div className=" w-full items-center gap-4">
+                <div className="flex justify-between w-full">
+                  <div className="information w-[500px] space-y-2">
+                    <div className="flex w-full justify-between">
+                      <FormField
+                        control={form.control}
+                        name="categoryId"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Category</FormLabel>
+                            <FormControl>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="w-[190px]">
+                                    <SelectValue placeholder="Select your category" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {categories.map((category) => (
+                                    <SelectItem
+                                      key={category.categoryId}
+                                      value={category.categoryId}
+                                    >
+                                      {category.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="cityId"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>City</FormLabel>
                             <Select
                               onValueChange={field.onChange}
                               defaultValue={field.value}
                             >
                               <FormControl>
-                                <SelectTrigger className="w-[208px]">
-                                  <SelectValue placeholder="Select your category" />
+                                <SelectTrigger className="w-[190px]">
+                                  <SelectValue placeholder="Select your campus" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {categories.map((category) => (
+                                {cities.map((city) => (
                                   <SelectItem
-                                    key={category.categoryId}
-                                    value={category.categoryId}
+                                    key={city.cityId}
+                                    value={city.cityId}
                                   >
-                                    {category.name}
+                                    {city.name}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="title"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Title</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="text"
+                              placeholder="What is your product (Laptop, backpack, ... )"
+                              disabled={isPending}
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -221,188 +266,146 @@ const ProductCreateForm = () => {
                     />
                     <FormField
                       control={form.control}
-                      name="cityId"
+                      name="description"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>City</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="w-[208px]">
-                                <SelectValue placeholder="Select your campus" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {cities.map((city) => (
-                                <SelectItem
-                                  key={city.cityId}
-                                  value={city.cityId}
-                                >
-                                  {city.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <FormLabel>Description</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Brand name, color, please describe more about your product"
+                              disabled={isPending}
+                              {...field}
+                            />
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Title</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="text"
-                            placeholder="What is your product (Laptop, backpack, ... )"
-                            disabled={isPending}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Description</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Brand name, color, please describe more about your product"
-                            disabled={isPending}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="imagePro"
-                    render={({ field: { onChange, value, ...rest } }) => (
-                      <FormItem>
-                        <FormLabel>
-                          <div className="flex items-center justify-between">
-                            Product Image (png, jpg and jpeg)
-                            <Button
-                              type="button"
-                              size="sm"
-                              disabled={isPending}
-                              onClick={() => handleBrowseImage()}
+
+                    <FormField
+                      control={form.control}
+                      name="genreId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Genre</FormLabel>
+                          <FormControl>
+                            <RadioGroup
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                              className="flex justify-evenly"
                             >
-                              Choose Image
-                            </Button>
-                          </div>
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="file"
-                            accept=""
-                            id="imageImporter"
-                            disabled={isPending}
-                            {...rest}
-                            onChange={(event) => {
-                              const { files, displayUrl } = getImageData(event);
-                              console.log("file la ", files);
-                              setPreview(displayUrl);
-                              onChange(files);
-                              setImageState(files[0]);
-                            }}
-                            className=""
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="w-full">
-                    <Image
-                      src={preview ? preview : defaultImg}
-                      height={200}
-                      width={0}
-                      alt="No data"
-                      className="w-full object-cover
-                    "
-                    ></Image>
+                              {genres.map((genre) => (
+                                <FormItem
+                                  key={genre.genreId}
+                                  className="flex items-center space-x-3 space-y-0"
+                                >
+                                  <FormControl>
+                                    <RadioGroupItem
+                                      value={genre.genreId}
+                                      onClick={() => handleGenre(genre.name)}
+                                    />
+                                  </FormControl>
+                                  <FormLabel className="font-normal">
+                                    {genre.name}
+                                  </FormLabel>
+                                </FormItem>
+                              ))}
+                            </RadioGroup>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div className="flex justify-between">
+                      <FormField
+                        control={form.control}
+                        name="price"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Price</FormLabel>
+                            <FormControl>
+                              <Input
+                                className="w-[190px]"
+                                type="number"
+                                disabled={isPending || isFree}
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="quantity"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Quantity</FormLabel>
+                            <FormControl>
+                              <Input
+                                className="w-[190px]"
+                                type="number"
+                                disabled={isPending}
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                   </div>
-                  <FormField
-                    control={form.control}
-                    name="genreId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Genre</FormLabel>
-                        <FormControl>
-                          <RadioGroup
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            className="flex justify-evenly"
-                          >
-                            {genres.map((genre) => (
-                              <FormItem
-                                key={genre.genreId}
-                                className="flex items-center space-x-3 space-y-0"
+                  <div className="image space-y-2">
+                    <FormField
+                      control={form.control}
+                      name="imagePro"
+                      render={({ field: { onChange, value, ...rest } }) => (
+                        <FormItem>
+                          <FormLabel>
+                            <div className="flex items-center justify-between">
+                              Product Image (png, jpg and jpeg)
+                              <Button
+                                type="button"
+                                size="sm"
+                                disabled={isPending}
+                                onClick={() => handleBrowseImage()}
                               >
-                                <FormControl>
-                                  <RadioGroupItem
-                                    value={genre.genreId}
-                                    onClick={() => handleGenre(genre.name)}
-                                  />
-                                </FormControl>
-                                <FormLabel className="font-normal">
-                                  {genre.name}
-                                </FormLabel>
-                              </FormItem>
-                            ))}
-                          </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="flex justify-between">
-                    <FormField
-                      control={form.control}
-                      name="price"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Price</FormLabel>
+                                Choose Image
+                              </Button>
+                            </div>
+                          </FormLabel>
                           <FormControl>
                             <Input
-                              type="number"
-                              disabled={isPending || isFree}
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="quantity"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Quantity</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
+                              type="file"
+                              accept=""
+                              id="imageImporter"
                               disabled={isPending}
-                              {...field}
+                              {...rest}
+                              onChange={(event) => {
+                                const { files, displayUrl } =
+                                  getImageData(event);
+                                console.log("file la ", files);
+                                setPreview(displayUrl);
+                                onChange(files);
+                                setImageState(files[0]);
+                              }}
+                              className=""
                             />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+                    <div className="w-full">
+                      <Image
+                        src={preview ? preview : defaultImg}
+                        height={200}
+                        width={0}
+                        alt="No data"
+                        className="w-full object-cover
+                    "
+                      ></Image>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -16,6 +16,7 @@ import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 const formSchema = z.object({
   email: z.string(),
@@ -27,17 +28,24 @@ type UserFormValue = z.infer<typeof formSchema>;
 export default function UserAuthForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const form = useForm<UserFormValue>({
     resolver: zodResolver(formSchema),
   });
 
   const onSubmit = async (data: UserFormValue) => {
-    signIn("credentials", {
-      email: data.email,
-      password: data.password,
-      callbackUrl: callbackUrl ?? "/browse",
-    });
+    try {
+      setIsLoading(!isLoading);
+      signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        callbackUrl: callbackUrl ?? "/browse",
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -57,7 +65,7 @@ export default function UserAuthForm() {
                   <Input
                     type="text"
                     placeholder="Enter your email or username..."
-                    disabled={loading}
+                    disabled={isLoading}
                     {...field}
                   />
                 </FormControl>
@@ -75,7 +83,7 @@ export default function UserAuthForm() {
                   <Input
                     type="password"
                     placeholder="Enter your password..."
-                    disabled={loading}
+                    disabled={isLoading}
                     {...field}
                   />
                 </FormControl>
@@ -83,14 +91,25 @@ export default function UserAuthForm() {
               </FormItem>
             )}
           />
-          <Button disabled={loading} className="ml-auto w-full" type="submit">
-            Login
-          </Button>
+          {isLoading ? (
+            <Button
+              disabled={isLoading}
+              className="ml-auto w-full"
+              type="submit"
+            >
+              <AiOutlineLoading3Quarters className="mr-2 h-4 w-4 animate-spin" />
+              Logging in
+            </Button>
+          ) : (
+            <Button className="ml-auto w-full" type="submit">
+              Login
+            </Button>
+          )}
         </form>
       </Form>
       <div className="flex flex-col gap-y-2">
         <p className="text-sm">Do not have an account ? Join us :</p>
-        <Button disabled={loading} className="ml-auto w-full">
+        <Button disabled={isLoading} className="ml-auto w-full">
           <Link href="/auth/register">Register</Link>
         </Button>
       </div>

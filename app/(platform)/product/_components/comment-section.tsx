@@ -11,8 +11,31 @@ import { Textarea } from "@/components/ui/textarea";
 import Image from "next/image";
 import Link from "next/link";
 import defaultUserImg from "@/assets/img/user/default-avatar-icon-of-social-media-user-vector.jpg";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Product } from "@/types/product";
 
-const CommentSection = () => {
+interface CommentSectionProps {
+  isLoading: boolean;
+  product: Product | undefined;
+}
+
+const CommentSection = ({ isLoading, product }: CommentSectionProps) => {
+  if (isLoading) {
+    return <Skeleton className="w-full h-[500px] rounded-2xl" />;
+  }
+
+  if (!product?.commentCount) {
+    return (
+      <div className="rated-secttion w-full flex flex-col border-2 rounded-2xl shadow-lg">
+        <div className="w-full border-b text-2xl font-medium p-4">
+          Rating section ({product?.commentCount ? product?.commentCount : 0})
+        </div>
+        <div className="w-full text-xl font-normal p-4 text-slate-400">
+          This product has no comments yet
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="comment-section w-full flex flex-col border-2 rounded-2xl shadow-lg">
       <div className="w-full border-b text-2xl font-medium p-4">

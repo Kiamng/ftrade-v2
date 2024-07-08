@@ -12,19 +12,24 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface RatingSectionProp {
-  product: Product;
+  product: Product | undefined;
+  isLoading: boolean;
 }
 
-const RatingSection = ({ product }: RatingSectionProp) => {
-  if (product?.rated) {
+const RatingSection = ({ product, isLoading }: RatingSectionProp) => {
+  if (isLoading) {
+    return <Skeleton className="w-full h-[500px] rounded-2xl" />;
+  }
+  if (!product?.rated) {
     return (
       <div className="rated-secttion w-full flex flex-col border-2 rounded-2xl shadow-lg">
         <div className="w-full border-b text-2xl font-medium p-4">
           Rating section ({product?.ratedCount ? product?.ratedCount : 0})
         </div>
-        <div className="w-full text-2xl font-normal p-4">
+        <div className="w-full text-xl text-slate-400 font-normal p-4">
           This product has no ratings yet
         </div>
       </div>

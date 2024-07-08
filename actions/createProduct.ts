@@ -5,7 +5,9 @@ import { createProductSchema } from "@/schemas";
 import * as z from "zod";
 
 export const CreateProduct = async (
-  values: z.infer<typeof createProductSchema>
+  values: z.infer<typeof createProductSchema>,
+  userId: string,
+  token: string
 ) => {
   const validatedFields = createProductSchema.safeParse(values);
 
@@ -35,7 +37,7 @@ export const CreateProduct = async (
     genreId,
   };
 
-  const response = await createProduct(newCreatedProduct);
+  const response = await createProduct(newCreatedProduct, userId, token);
   // if (response.data.status === 400 || response.data.status === 404) {
   //   return { error: response.data.message };
   // }

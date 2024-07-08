@@ -13,34 +13,57 @@ export const getProductByStatus = async (
   status: string,
   pageNumber: number,
   pageSize: number,
-  isDisplay: string
+  isDisplay: string,
+  token: string
 ): Promise<ProductList> => {
   const response = await axiosClient.get(
-    `${END_POINT.GET_ALL}Status=${status}&IsDisplay=${isDisplay}&PageNumber=${pageNumber}&PageSize=${pageSize}`
+    `${END_POINT.GET_ALL}Status=${status}&IsDisplay=${isDisplay}&PageNumber=${pageNumber}&PageSize=${pageSize}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
   );
   return response.data;
 };
 
 export const createProduct = async (
-  values: z.infer<typeof createProductSchema>
+  values: z.infer<typeof createProductSchema>,
+  userId: string,
+  token: string
 ) => {
-  const response = await axiosClient.post(END_POINT.CREATE_PRODUCT, {
-    title: values.title,
-    description: values.description,
-    imagePro: values.imagePro,
-    creatorId: "87867405-e514-492d-ab89-1d3f7cecbae7",
-    price: values.price,
-    categoryId: values.categoryId,
-    quantity: values.quantity,
-    cityId: values.cityId,
-    status: "Approved",
-    genreId: values.genreId,
-    isDisplay: "true",
-  });
-  return response.data;
+  const response = await axiosClient.post(
+    END_POINT.CREATE_PRODUCT,
+    {
+      title: values.title,
+      description: values.description,
+      imagePro: values.imagePro,
+      creatorId: userId,
+      price: values.price,
+      categoryId: values.categoryId,
+      quantity: values.quantity,
+      cityId: values.cityId,
+      status: "Pending",
+      genreId: values.genreId,
+      isDisplay: "true",
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response.status;
 };
 
-export const getProductById = async (id: string): Promise<Product> => {
-  const response = await axiosClient.get(`${END_POINT.GET_PRODUCT}?id=${id}`);
+export const getProductById = async (
+  id: string,
+  token: string
+): Promise<Product> => {
+  const response = await axiosClient.get(`${END_POINT.GET_PRODUCT}?id=${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   return response.data;
 };
