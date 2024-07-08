@@ -18,6 +18,7 @@ import { Button } from "../ui/button";
 import { useToast } from "../ui/use-toast";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 export const RegisterForm = () => {
   const [isPending, setIsPending] = useState<boolean>(false);
@@ -148,16 +149,29 @@ export const RegisterForm = () => {
               </FormItem>
             )}
           />
-          <Button
-            className="ml-auto w-full mt-4"
-            type="submit"
-            disabled={isPending}
-            onClick={() => {
-              toast;
-            }}
-          >
-            Sign up
-          </Button>
+          {isPending ? (
+            <Button
+              className="ml-auto w-full mt-4"
+              type="submit"
+              disabled={isPending}
+              onClick={() => {
+                toast;
+              }}
+            >
+              <AiOutlineLoading3Quarters className="mr-2 h-4 w-4 animate-spin" />
+              Signing up
+            </Button>
+          ) : (
+            <Button
+              className="ml-auto w-full mt-4"
+              type="submit"
+              onClick={() => {
+                toast;
+              }}
+            >
+              Sign up
+            </Button>
+          )}
         </form>
       </Form>
       <div className="flex flex-row gap-x-2 w-full mt-4">

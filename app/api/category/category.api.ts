@@ -5,7 +5,11 @@ const END_POINT = {
   GET_ALL: "/Category/GetAllCategories",
 };
 
-export const getAllCategories = async (): Promise<Category[]> => {
-  const response = await axiosClient.get(END_POINT.GET_ALL);
+export const getAllCategories = async (token: string): Promise<Category[]> => {
+  const response = await axiosClient.get(END_POINT.GET_ALL, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   return response.data;
 };
