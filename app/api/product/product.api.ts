@@ -67,3 +67,20 @@ export const getProductById = async (
   });
   return response.data;
 };
+
+export const getDisplayingProductByUserId = async (
+  userId: string,
+  pageNumber: number,
+  pageSize: number,
+  token: string
+): Promise<ProductList> => {
+  const response = await axiosClient.get(
+    `${END_POINT.GET_ALL}?CreatorId=${userId}&Status=Approved&IsDisplay=true&PageNumber=${pageNumber}&PageSize=${pageSize}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response.data;
+};

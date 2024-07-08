@@ -29,7 +29,10 @@ const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
           sesson.data?.user?.token as string
         );
         setProduct(response);
-        const user = await getUserById(response.creatorId as string);
+        const user = await getUserById(
+          response.creatorId as string,
+          sesson.data?.user?.token as string
+        );
         setCreator(user);
       } catch (error) {
         console.error("Error fetching data:", error);

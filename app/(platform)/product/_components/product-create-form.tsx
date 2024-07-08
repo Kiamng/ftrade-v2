@@ -49,6 +49,7 @@ import CreateFormLoading from "./create-form-loading";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
 import { useSession } from "next-auth/react";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 const ProductCreateForm = () => {
   const { toast } = useToast();
@@ -62,7 +63,7 @@ const ProductCreateForm = () => {
   const [imageState, setImageState] = useState<File>();
   const session = useSession();
   const token = session.data?.user?.token;
-  const userId = session.data?.user?.id;
+  const userId = session.data?.user?.accountId;
 
   const form = useForm<z.infer<typeof createProductSchema>>({
     resolver: zodResolver(createProductSchema),
@@ -121,7 +122,16 @@ const ProductCreateForm = () => {
             userId as string,
             token as string
           );
-          console.log(createResponse);
+          if (createResponse === 200) {
+            toast({
+              description: `Your product has been created successfully ! `,
+            });
+          } else {
+            toast({
+              description: `There has been some trouble while creating your product, please try again `,
+              variant: "destructive",
+            });
+          }
         } else {
           console.log("failed");
         }
@@ -396,29 +406,41 @@ const ProductCreateForm = () => {
                         </FormItem>
                       )}
                     />
-                    <div className="w-full">
+                    <div className="w-full h-[200px]">
                       <Image
                         src={preview ? preview : defaultImg}
-                        height={200}
+                        height={0}
                         width={0}
                         alt="No data"
-                        className="w-full object-cover
-                    "
+                        className="w-full h-full object-cover"
                       ></Image>
                     </div>
                   </div>
                 </div>
               </div>
               <div className="mt-6 w-full flex justify-end">
-                <Button
-                  type="submit"
-                  disabled={isPending}
-                  onClick={() => {
-                    toast;
-                  }}
-                >
-                  Create
-                </Button>
+                {isPending ? (
+                  <Button
+                    type="submit"
+                    disabled={isPending}
+                    onClick={() => {
+                      toast;
+                    }}
+                  >
+                    <AiOutlineLoading3Quarters className="mr-2 h-4 w-4 animate-spin" />
+                    Creating
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    disabled={isLoading}
+                    onClick={() => {
+                      toast;
+                    }}
+                  >
+                    Create
+                  </Button>
+                )}
               </div>
             </form>
           </Form>
