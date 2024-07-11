@@ -34,7 +34,7 @@ import { toast } from "@/components/ui/use-toast";
 
 import { getAllCities } from "@/app/api/city/city.api";
 import { uploadImage } from "@/app/api/image/image.apit";
-import { getAllGenre } from "@/app/api/genre/genre.api";
+import { getAllGenres } from "@/app/api/genre/genre.api";
 import { getAllCategories } from "@/app/api/category/category.api";
 
 import { Genre } from "@/types/genre";
@@ -83,7 +83,7 @@ const ProductCreateForm = () => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const allGenre = await getAllGenre(token as string);
+        const allGenre = await getAllGenres(token as string);
         setGenres(allGenre);
         const allCategory = await getAllCategories(token as string);
         setCategories(allCategory);

@@ -4,20 +4,51 @@ import { Product, ProductList } from "@/types/product";
 import * as z from "zod";
 
 export const END_POINT = {
-  GET_ALL: "/Product/GetAllProduct?",
+  GET_ALL: "/Product/GetAllProduct",
   CREATE_PRODUCT: "/Product/CreateProduct",
   GET_PRODUCT: "/Product/GetProductById",
 };
 
-export const getProductByStatus = async (
-  status: string,
-  pageNumber: number,
-  pageSize: number,
-  isDisplay: string,
-  token: string
-): Promise<ProductList> => {
+export const getAllProduct = async ({
+  token,
+  creatorId,
+  status,
+  pageNumber,
+  pageSize,
+  isDisplay,
+  category,
+  genre,
+  city,
+  sortBy,
+  sortAscending,
+}: {
+  token: string;
+  creatorId?: string;
+  status?: string;
+  pageNumber?: number;
+  pageSize?: number;
+  isDisplay?: string;
+  category?: string;
+  genre?: string;
+  city?: string;
+  sortBy?: string;
+  sortAscending?: boolean;
+}): Promise<ProductList> => {
+  const params = new URLSearchParams();
+  if (creatorId) params.append("CreatorId", creatorId);
+  if (category) params.append("CategoryName", category);
+  if (city) params.append("CityName", city);
+  if (genre) params.append("GenreName", genre);
+  if (status) params.append("Status", status);
+  if (isDisplay) params.append("IsDisplay", isDisplay);
+  if (pageNumber) params.append("PageNumber", pageNumber.toString());
+  if (pageSize) params.append("PageSize", pageSize.toString());
+  if (sortBy) params.append("SortBy", sortBy);
+  if (sortAscending !== undefined)
+    params.append("SortAscending", sortAscending.toString());
+
   const response = await axiosClient.get(
-    `${END_POINT.GET_ALL}Status=${status}&IsDisplay=${isDisplay}&PageNumber=${pageNumber}&PageSize=${pageSize}`,
+    `${END_POINT.GET_ALL}?${params.toString()}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,

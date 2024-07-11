@@ -28,15 +28,13 @@ const ProductSection = ({ data }: ProductSectionProps) => {
       <h4 className="scroll-m-20 text-lg font-semibold tracking-tight">
         {data?.title}
       </h4>
-      <p className="text-sm text-slate-500">{formattedDate}</p>
+      <p className="text-sm text-slate-500 underline">{formattedDate}</p>
 
       <div className="flex flex-row w-full justify-between">
         <Badge className="text-base">
           {data?.price === 0 ? "Free" : `${data?.price} VND`}
         </Badge>
-        <Badge variant="secondary" className="text-base">
-          {data?.genre.name}
-        </Badge>
+        <Badge className="text-base">{data?.genre.name}</Badge>
       </div>
       <div className="bg-slate-100 p-4 rounded-2xl text-sm min-h-[100px]">
         {data?.description}
