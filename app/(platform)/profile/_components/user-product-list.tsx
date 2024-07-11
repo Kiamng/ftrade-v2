@@ -4,10 +4,8 @@ import { Separator } from "@/components/ui/separator";
 import { Product } from "@/types/product";
 import { LoaderCircle } from "lucide-react";
 import ProductSectionLoadingPage from "../../product/_components/product-section-loading";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 interface UserProductListProps {
-  totalItem: number | undefined;
   productList: Product[] | undefined;
   viewMoreLoading: boolean;
   totalPages: number | undefined;
@@ -18,7 +16,6 @@ interface UserProductListProps {
 
 const UserProductList = ({
   currentPage,
-  totalItem,
   productList,
   viewMoreLoading,
   totalPages,
@@ -26,17 +23,7 @@ const UserProductList = ({
   isLoading,
 }: UserProductListProps) => {
   return (
-    <div className="w-[1400px] mx-auto space-y-4  mt-[40px]">
-      <h2 className="text-3xl font-semibold mx-auto">
-        Displaying products (
-        {isLoading ? (
-          <AiOutlineLoading3Quarters className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          totalItem
-        )}
-        )
-      </h2>
-      <Separator />
+    <div className="w-[1400px] mx-auto space-y-4  ">
       {isLoading ? (
         <div className=" grid grid-cols-4 gap-y-7 gap-x-2 mx-auto pb-4  border-slate-200">
           <ProductSectionLoadingPage /> <ProductSectionLoadingPage />

@@ -1,17 +1,23 @@
 "use client";
-import Header from "@/components/landing-page/header";
 import ProductSection from "@/components/landing-page/product-section";
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation";
 import { Button } from "@/components/ui/button";
 import { Highlight } from "@/components/ui/hero-highlight";
 import { Product, ProductList } from "@/types/product";
 import { useEffect, useState } from "react";
-import { getProductByStatus } from "../../api/product/product.api";
-import { link } from "fs";
+import { getAllProduct } from "../../api/product/product.api";
 import { LoaderCircle } from "lucide-react";
 import ProductSectionLoadingPage from "../product/_components/product-section-loading";
 import { Separator } from "@/components/ui/separator";
 import { useSession } from "next-auth/react";
+import { City } from "@/types/city";
+import { Category } from "@/types/category";
+import { Genre } from "@/types/genre";
+import { useToast } from "@/components/ui/use-toast";
+import FilterSection from "@/components/landing-page/filter-section";
+import { getAllCategories } from "@/app/api/category/category.api";
+import { getAllCities } from "@/app/api/city/city.api";
+import { getAllGenres } from "@/app/api/genre/genre.api";
 
 export default function Browse() {
   const [productList, setProductList] = useState<Product[]>([]);
@@ -19,40 +25,88 @@ export default function Browse() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [viewMoreLoading, setViewMoreLoading] = useState<boolean>(false);
+  const [selectedCity, setSelectedCity] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedGenre, setSelectedGenre] = useState<string>("");
+  const [sortBy, setSortBy] = useState<string>("createdDate");
+  const [sortAscending, setSortAscending] = useState<boolean>(false);
+  const [city, setCity] = useState<City[]>([]);
+  const [category, setCategory] = useState<Category[]>([]);
+  const [genre, setGenre] = useState<Genre[]>([]);
+  const [filter, setFilter] = useState<boolean>(false);
   const session = useSession();
+  const { toast } = useToast();
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setIsLoading(!isLoading);
-        const response = await getProductByStatus(
-          "Approved",
-          1,
-          8,
-          "true",
-          session.data?.user?.token as string
-        );
+        setIsLoading(true);
+        const response = await getAllProduct({
+          token: session.data?.user?.token as string,
+          status: "Approved",
+          pageNumber: currentPage,
+          category: selectedCategory !== "none" ? selectedCategory : undefined,
+          city: selectedCity !== "none" ? selectedCity : undefined,
+          genre: selectedGenre !== "none" ? selectedGenre : undefined,
+          isDisplay: "true",
+          pageSize: 8,
+          sortBy: sortBy || undefined,
+          sortAscending: sortAscending,
+        });
         setProductList(response.items);
         setProductListInfor(response);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
         setIsLoading(false);
+        setFilter(false);
       }
     };
 
-    fetchData();
-  }, []);
+    if (filter) {
+      fetchData();
+    } else {
+      // Initial fetch when component mounts
+      fetchData();
+    }
+  }, [filter]);
+
+  useEffect(() => {
+    const fetchFilterData = async () => {
+      try {
+        const categoryResponse = await getAllCategories(
+          session.data?.user?.token as string
+        );
+        setCategory(categoryResponse);
+        const cityResponse = await getAllCities(
+          session.data?.user?.token as string
+        );
+        setCity(cityResponse);
+        const genreResponse = await getAllGenres(
+          session.data?.user?.token as string
+        );
+        setGenre(genreResponse);
+      } catch (error) {
+        console.error("Error fetching filter data:", error);
+      }
+    };
+    fetchFilterData();
+  }, [session.data?.user?.token]);
 
   const handleViewMore = async () => {
     setViewMoreLoading(true);
     try {
-      const response = await getProductByStatus(
-        "Approved",
-        currentPage + 1,
-        8,
-        "true",
-        session.data?.user?.token as string
-      );
+      const response = await getAllProduct({
+        token: session.data?.user?.token as string,
+        status: "Approved",
+        pageNumber: currentPage + 1,
+        category: selectedCategory !== "none" ? selectedCategory : undefined,
+        city: selectedCity !== "none" ? selectedCity : undefined,
+        genre: selectedGenre !== "none" ? selectedGenre : undefined,
+        isDisplay: "true",
+        pageSize: 8,
+        sortBy: sortBy || undefined,
+        sortAscending: sortAscending,
+      });
       setCurrentPage(currentPage + 1);
       setProductList((prevProductList) => [
         ...prevProductList,
@@ -62,6 +116,49 @@ export default function Browse() {
       console.error("Error fetching more products:", error);
     } finally {
       setViewMoreLoading(false);
+    }
+  };
+
+  const handleCityChange = (value: string) => {
+    setSelectedCity(value);
+  };
+
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value);
+  };
+
+  const handleGenreChange = (value: string) => {
+    setSelectedGenre(value);
+  };
+
+  const handleSortByChange = (Value: string) => {
+    setSortBy(Value);
+  };
+
+  const handleFilter = () => {
+    setCurrentPage(1);
+    setFilter(true);
+  };
+
+  const handleRestart = () => {
+    setCurrentPage(1);
+    setSelectedCategory("");
+    setSelectedCity("");
+    setSelectedGenre("");
+    setSortAscending(false);
+    setSortBy("createdDate");
+    setFilter(true);
+  };
+
+  const handleSortAscending = () => {
+    if (sortBy === "") {
+      toast({
+        description: `You need to choose the attribue that you want to sort ! `,
+        variant: "destructive",
+      });
+    } else {
+      setSortAscending(!sortAscending);
+      setCurrentPage(1);
     }
   };
   return (
@@ -78,7 +175,27 @@ export default function Browse() {
       </BackgroundGradientAnimation>
 
       <div className="w-[1400px] mx-auto space-y-4 mt-[40px]">
-        <h2 className="text-3xl font-semibold mx-auto">List of products</h2>
+        <div className="w-full flex justify-between">
+          <div>
+            <h2 className="text-3xl font-semibold mx-auto">List of products</h2>
+          </div>
+
+          <FilterSection
+            handleCategoryChange={handleCategoryChange}
+            handleCityChange={handleCityChange}
+            handleGenreChange={handleGenreChange}
+            handleFilter={handleFilter}
+            handleRestart={handleRestart}
+            handleSortAscending={handleSortAscending}
+            handleSortByChange={handleSortByChange}
+            sortAscending={sortAscending}
+            sortBy={sortBy}
+            isLoading={isLoading}
+            categoryData={category}
+            cityData={city}
+            genreData={genre}
+          />
+        </div>
         <Separator />
         {isLoading ? (
           <div className="grid grid-cols-4 gap-y-7 gap-x-2 mx-auto pb-4  border-slate-200">
