@@ -1,5 +1,5 @@
 "use client";
-import { Register } from "@/actions/register";
+import { RegisterAction } from "@/actions/auth/register";
 import {
   Form,
   FormControl,
@@ -10,14 +10,13 @@ import {
 } from "@/components/ui/form";
 import { RegisterSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useToast } from "../ui/use-toast";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 export const RegisterForm = () => {
@@ -39,7 +38,7 @@ export const RegisterForm = () => {
   const onSubmit = async (values: z.infer<typeof RegisterSchema>) => {
     try {
       setIsPending(!isPending);
-      const response = await Register(values);
+      const response = await RegisterAction(values);
       if (response.success) {
         toast({
           description: `${values.username} added successfully !`,

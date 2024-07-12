@@ -41,7 +41,7 @@ import { Genre } from "@/types/genre";
 import { Category } from "@/types/category";
 import { City } from "@/types/city";
 
-import { CreateProduct } from "@/actions/createProduct";
+import { CreateProductAction } from "@/actions/product/createProduct";
 import { getImageData } from "@/actions/getImage";
 import Image from "next/image";
 import defaultImg from "@/assets/img/product/default-img.webp";
@@ -117,7 +117,7 @@ const ProductCreateForm = () => {
         const newFormData = { ...values, imagePro: ImgResponse.data.fileUri };
 
         if (ImgResponse.status === 200) {
-          const createResponse = await CreateProduct(
+          const createResponse = await CreateProductAction(
             newFormData,
             userId as string,
             token as string

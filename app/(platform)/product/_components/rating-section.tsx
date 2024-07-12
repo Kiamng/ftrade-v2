@@ -1,3 +1,4 @@
+"use client";
 import { Progress } from "@/components/ui/progress";
 import { Product } from "@/types/product";
 import Image from "next/image";
@@ -13,17 +14,19 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
+import { userRate } from "@/types/rate";
 
 interface RatingSectionProp {
   product: Product | undefined;
   isLoading: boolean;
+  userRate: userRate[] | undefined;
 }
 
-const RatingSection = ({ product, isLoading }: RatingSectionProp) => {
+const RatingSection = ({ product, isLoading, userRate }: RatingSectionProp) => {
   if (isLoading) {
     return <Skeleton className="w-full h-[500px] rounded-2xl" />;
   }
-  if (!product?.rated) {
+  if (product?.rated === 0) {
     return (
       <div className="rated-secttion w-full flex flex-col border-2 rounded-2xl shadow-lg">
         <div className="w-full border-b text-2xl font-medium p-4">
@@ -65,121 +68,44 @@ const RatingSection = ({ product, isLoading }: RatingSectionProp) => {
         </div>
       </div>
       <div className="rating-list w-full flex flex-col">
-        <div className=" flex items-start m-4 border-b pb-4">
-          <Image
-            src={defaultUserImg}
-            alt="user Avatar"
-            width={36}
-            height={36}
-            className="rounded-full object-fill"
-          ></Image>
-          <div className="w-full ml-3 space-y-2">
-            <div>
-              <Link href={"#"} className="hover:underline text-lg font-medium">
-                quoclam
-              </Link>
-              <p>wow this product is amazing</p>
+        {userRate?.map((rate) => (
+          <div
+            key={rate.rate.id}
+            className=" flex items-start m-4 border-b pb-4"
+          >
+            <img
+              src={
+                rate.user.avatarUrl ? rate.user.avatarUrl : defaultUserImg.src
+              }
+              alt="user Avatar"
+              width={36}
+              height={36}
+              className="rounded-full object-fill"
+            ></img>
+            <div className="w-full ml-3 space-y-2">
+              <div>
+                <Link
+                  href={"#"}
+                  className="hover:underline text-lg font-medium"
+                >
+                  {rate.user.userName}
+                </Link>
+                <p>{rate.rate.descript}</p>
+              </div>
+              <div className="flex space-x-1">
+                {[...Array(5)].map((star, index) => {
+                  return (
+                    <FaStar
+                      key={index}
+                      color={index + 1 <= rate.rate.rated ? "yellow" : "gray"}
+                    />
+                  );
+                })}
+              </div>
+              <p className="text-sm text-slate-400"> date-date-date</p>
             </div>
-            <div className="flex space-x-1">
-              {[...Array(5)].map((star, index) => {
-                return (
-                  <FaStar
-                    key={index}
-                    color={index + 1 <= product?.rated! ? "yellow" : "gray"}
-                  />
-                );
-              })}
-            </div>
-            <p className="text-sm text-slate-400"> date-date-date</p>
           </div>
-        </div>
-        <div className=" flex items-start m-4 border-b pb-4">
-          <Image
-            src={defaultUserImg}
-            alt="user Avatar"
-            width={36}
-            height={36}
-            className="rounded-full object-fill"
-          ></Image>
-          <div className="w-full ml-3 space-y-2">
-            <div>
-              <Link href={"#"} className="hover:underline text-lg font-medium">
-                minhPhuc
-              </Link>
-              <p>wow this product is amazing</p>
-            </div>
-
-            <div className="flex space-x-1">
-              {[...Array(5)].map((star, index) => {
-                return (
-                  <FaStar
-                    key={index}
-                    color={index + 1 <= product?.rated! ? "yellow" : "gray"}
-                  />
-                );
-              })}
-            </div>
-            <p className="text-sm text-slate-400"> date-date-date</p>
-          </div>
-        </div>
-        <div className=" flex items-start m-4 border-b pb-4">
-          <Image
-            src={defaultUserImg}
-            alt="user Avatar"
-            width={36}
-            height={36}
-            className="rounded-full object-fill"
-          ></Image>
-          <div className="w-full ml-3 space-y-2">
-            <div>
-              <Link href={"#"} className="hover:underline text-lg font-medium">
-                hoangPhuc
-              </Link>
-              <p>wow this product is amazing</p>
-            </div>
-
-            <div className="flex space-x-1">
-              {[...Array(5)].map((star, index) => {
-                return (
-                  <FaStar
-                    key={index}
-                    color={index + 1 <= product?.rated! ? "yellow" : "gray"}
-                  />
-                );
-              })}
-            </div>
-            <p className="text-sm text-slate-400"> date-date-date</p>
-          </div>
-        </div>
-        <div className=" flex items-start m-4 border-b pb-4">
-          <Image
-            src={defaultUserImg}
-            alt="user Avatar"
-            width={36}
-            height={36}
-            className="rounded-full object-fill"
-          ></Image>
-          <div className="w-full ml-3 space-y-2">
-            <div>
-              <Link href={"#"} className="hover:underline text-lg font-medium">
-                duyTruong
-              </Link>
-              <p>wow this product is amazing</p>
-            </div>
-
-            <div className="flex space-x-1">
-              {[...Array(5)].map((star, index) => {
-                return (
-                  <FaStar
-                    key={index}
-                    color={index + 1 <= product?.rated! ? "yellow" : "gray"}
-                  />
-                );
-              })}
-            </div>
-            <p className="text-sm text-slate-400"> date-date-date</p>
-          </div>
-        </div>
+        ))}
       </div>
       <div className="pagnition w-full mx-auto mb-4">
         <Pagination>
