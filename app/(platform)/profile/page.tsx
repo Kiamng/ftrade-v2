@@ -20,6 +20,8 @@ import { getAllCities } from "@/app/api/city/city.api";
 import { getAllCategories } from "@/app/api/category/category.api";
 import { useToast } from "@/components/ui/use-toast";
 import FilterSection from "@/components/landing-page/filter-section";
+import EmptyState from "@/components/empty";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ProfilePage = () => {
   const account = useSession();
@@ -75,7 +77,7 @@ const ProfilePage = () => {
       // Initial fetch when component mounts
       fetchUserData();
     }
-  }, [filter]);
+  }, [filter, account.data?.user?.token as string]);
 
   useEffect(() => {
     const fetchFilterData = async () => {
@@ -174,42 +176,45 @@ const ProfilePage = () => {
         <div className="w-[1400px] mx-auto space-y-4 ">
           <div className="w-full flex justify-between">
             {isLoading ? (
-              <h2 className="text-3xl font-semibold ">
-                Displaying products{" "}
-                <AiOutlineLoading3Quarters className="mr-2 h-4 w-4 animate-spin" />
-              </h2>
+              <Skeleton className="w-[390px] h-[40px]" />
             ) : (
               <h2 className="text-3xl font-semibold ">
                 Displaying products( {productListInfor?.totalItem} )
               </h2>
             )}
-            <FilterSection
-              handleCategoryChange={handleCategoryChange}
-              handleCityChange={handleCityChange}
-              handleGenreChange={handleGenreChange}
-              handleFilter={handleFilter}
-              handleRestart={handleRestart}
-              handleSortAscending={handleSortAscending}
-              handleSortByChange={handleSortByChange}
-              sortAscending={sortAscending}
-              sortBy={sortBy}
-              isLoading={isLoading}
-              categoryData={category}
-              cityData={city}
-              genreData={genre}
-            />
+            {productList && (
+              <FilterSection
+                handleCategoryChange={handleCategoryChange}
+                handleCityChange={handleCityChange}
+                handleGenreChange={handleGenreChange}
+                handleFilter={handleFilter}
+                handleRestart={handleRestart}
+                handleSortAscending={handleSortAscending}
+                handleSortByChange={handleSortByChange}
+                sortAscending={sortAscending}
+                sortBy={sortBy}
+                isLoading={isLoading}
+                categoryData={category}
+                cityData={city}
+                genreData={genre}
+              />
+            )}
           </div>
 
           <Separator />
         </div>
-        <UserProductList
-          currentPage={currentPage}
-          handleViewMore={handleViewMore}
-          productList={productList}
-          totalPages={productListInfor?.totalPages}
-          viewMoreLoading={viewMoreLoading}
-          isLoading={isLoading}
-        />
+        {productList ? (
+          <UserProductList
+            currentPage={currentPage}
+            handleViewMore={handleViewMore}
+            productList={productList}
+            totalPages={productListInfor?.totalPages}
+            viewMoreLoading={viewMoreLoading}
+            isLoading={isLoading}
+          />
+        ) : (
+          <EmptyState />
+        )}
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ import { createProduct } from "@/app/api/product/product.api";
 import { createProductSchema } from "@/schemas";
 import * as z from "zod";
 
-export const CreateProduct = async (
+export const CreateProductAction = async (
   values: z.infer<typeof createProductSchema>,
   userId: string,
   token: string

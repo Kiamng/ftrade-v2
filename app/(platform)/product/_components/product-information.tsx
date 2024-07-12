@@ -1,3 +1,4 @@
+"use client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Account } from "@/types/account";
@@ -8,18 +9,36 @@ import defaultimg from "@/assets/img/product/default-img.webp";
 import { format } from "date-fns";
 import { Separator } from "@/components/ui/separator";
 import ProductInformationLoading from "./product-information-loading";
+import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
+import { createRequest } from "@/app/api/request-history/request-history.api";
+import { Request, RequestListInfor } from "@/types/request";
+import { useSession } from "next-auth/react";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 interface ProductInformationDetailProps {
   product: Product | undefined;
   creator: Account | undefined;
+  userId: string | undefined;
   isLoading: boolean;
+  isPending: boolean;
+  hanldeCreateRequest: () => Promise<void>;
+  requestHistory: RequestListInfor | undefined;
 }
 
 const ProductInformationDetail = ({
   product,
   creator,
+  userId,
   isLoading,
+  isPending,
+  hanldeCreateRequest,
+  requestHistory,
 }: ProductInformationDetailProps) => {
+  console.log(creator?.accountId);
+
+  const { toast } = useToast();
+
   const formattedDate = product?.createdDate
     ? format(product?.createdDate, "HH:mm dd/MM/yyyy")
     : "";
@@ -27,6 +46,7 @@ const ProductInformationDetail = ({
   if (isLoading) {
     return <ProductInformationLoading />;
   }
+
   return (
     <div>
       <div className="flex w-full justify-between py-4">
@@ -52,7 +72,7 @@ const ProductInformationDetail = ({
           ></img>
         </div>
         <div className="information w-[585px]  space-y-3">
-          <div className=" pb-4 flex w-full items-center">
+          <div className=" pb-2 flex w-full items-center">
             <img
               src={creator?.avatarUrl ? creator?.avatarUrl : defaultUserImg.src}
               alt="user Avatar"
@@ -98,7 +118,31 @@ const ProductInformationDetail = ({
               <span className="font-normal"> {product?.description}</span>
             </div>
           </div>
-          <Button className="w-full">Request</Button>
+          {userId === creator?.accountId ? (
+            <></>
+          ) : isPending ? (
+            <Button
+              className="w-full"
+              type="submit"
+              disabled={isPending}
+              onClick={() => {
+                toast;
+              }}
+            >
+              <AiOutlineLoading3Quarters className="mr-2 h-4 w-4 animate-spin" />
+              Requesting
+            </Button>
+          ) : requestHistory?.items.some(
+              (items) => items.buyerId === userId
+            ) ? (
+            <Button disabled={true} className="w-full">
+              Requested
+            </Button>
+          ) : (
+            <Button onClick={hanldeCreateRequest} className="w-full">
+              Request
+            </Button>
+          )}
         </div>
       </div>
     </div>

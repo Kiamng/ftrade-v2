@@ -5,7 +5,9 @@ import * as z from "zod";
 import { RegisterSchema } from "@/schemas";
 import { register } from "@/app/api/auth/auth.api";
 
-export const Register = async (values: z.infer<typeof RegisterSchema>) => {
+export const RegisterAction = async (
+  values: z.infer<typeof RegisterSchema>
+) => {
   const validatedFields = RegisterSchema.safeParse(values);
 
   if (!validatedFields.success) {
