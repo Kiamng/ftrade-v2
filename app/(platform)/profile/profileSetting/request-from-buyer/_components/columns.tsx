@@ -56,6 +56,7 @@ export const requestColumns: ColumnDef<requestTableData>[] = [
               className="w-full h-full"
             />
           </div>
+          <p>{row.original.productBuyer.title}</p>
         </div>
       );
     },

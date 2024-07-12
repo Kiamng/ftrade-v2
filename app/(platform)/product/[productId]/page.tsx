@@ -1,6 +1,6 @@
 "use client";
-import { getProductById } from "@/app/api/product/product.api";
-import { Product } from "@/types/product";
+import { getAllProduct, getProductById } from "@/app/api/product/product.api";
+import { Product, ProductList } from "@/types/product";
 import { useEffect, useState } from "react";
 import React from "react";
 import { getUserById } from "@/app/api/account/account.api";
@@ -23,8 +23,6 @@ interface ProductDetailPageProps {
 }
 
 const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
-  const [request, setRequest] = useState<RequestForm>();
-  const [isPending, setIsPending] = useState<boolean>(false);
   const [product, setProduct] = useState<Product>();
   const [creator, setCreator] = useState<Account>();
   const [rate, setRate] = useState<RateListInfor>();
@@ -32,7 +30,8 @@ const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
   const [userRates, setUserRates] = useState<userRate[]>([]);
   const sesson = useSession();
   const [requestHistory, setRequestHistory] = useState<RequestListInfor>();
-
+  const [userProductList, setUserProductList] = useState<ProductList>();
+  const [open, setIsOpen] = useState<boolean>(false);
   useEffect(() => {
     const getProduct = async () => {
       try {
@@ -79,41 +78,19 @@ const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
     getProduct();
   }, [params.productId]);
 
-  const hanldeCreateRequest = async () => {
-    setRequest({
-      buyerId: sesson.data?.user?.accountId as string,
-      sellerId: creator?.accountId!,
-      productSellerId: product?.productId!,
-      productBuyerId: "",
-      status: "Pending",
-    });
-    if (request) {
-      try {
-        setIsPending(true);
-        const response = await createRequest(
-          request,
-          sesson.data?.user?.token as string
-        );
-        if (response === 200) {
-          toast({
-            description: `Your request is created susccessfully ✓ `,
-          });
-        } else {
-          toast({
-            description: `There has been an error while creating your request, please try again later !`,
-            variant: "destructive",
-          });
-        }
-      } catch (error) {
-        toast({
-          description: `Error : ${error} `,
-          variant: "destructive",
-        });
-      } finally {
-        setIsPending(false);
-      }
-    }
-  };
+  useEffect(() => {
+    const fetchUserProduct = async () => {
+      const response = await getAllProduct({
+        token: sesson.data?.user?.token as string as string,
+        creatorId: sesson.data?.user?.accountId as string,
+        isDisplay: "true",
+        status: "Approved",
+      });
+      setUserProductList(response);
+    };
+    fetchUserProduct();
+  });
+
   return (
     <div className="w-full flex justify-center">
       <div className="flex flex-col space-y-6 mb-10">
@@ -122,9 +99,9 @@ const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
           product={product}
           isLoading={isLoading}
           userId={sesson.data?.user?.accountId}
-          hanldeCreateRequest={hanldeCreateRequest}
-          isPending={isPending}
           requestHistory={requestHistory}
+          token={sesson.data?.user?.token as string}
+          userProductList={userProductList}
         />
         <RatingSection
           userRate={userRates}

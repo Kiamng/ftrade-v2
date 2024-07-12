@@ -61,21 +61,22 @@ export const requestHistoryColumns: ColumnDef<requestTableData>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="My Product" />
     ),
-    cell: ({ row }) => {
-      row.original.productBuyer && (
-        <div className="flex space-x-2">
-          <div className="w-[26px] h-[26px]">
-            <img
-              src={row.original.productBuyer?.imagePro}
-              height={0}
-              width={0}
-              alt="product img"
-              className="w-full h-full"
-            />
-          </div>
+    cell: ({ row }) => (
+      <div className="flex space-x-2">
+        <div className="w-[26px] h-[26px]">
+          <img
+            src={row.original.productBuyer?.imagePro}
+            height={0}
+            width={0}
+            alt="product img"
+            className="w-full h-full object-cover"
+          />
         </div>
-      );
-    },
+        <Link href={`/product/${row.original.productBuyer?.productId}`}>
+          {row.original.productSeller.title}
+        </Link>
+      </div>
+    ),
   },
   {
     accessorKey: "productSeller.genre.name",

@@ -2,28 +2,40 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Account } from "@/types/account";
-import { Product } from "@/types/product";
+import { Product, ProductList } from "@/types/product";
 import Link from "next/link";
 import defaultUserImg from "@/assets/img/user/default-avatar-icon-of-social-media-user-vector.jpg";
 import defaultimg from "@/assets/img/product/default-img.webp";
 import { format } from "date-fns";
 import { Separator } from "@/components/ui/separator";
 import ProductInformationLoading from "./product-information-loading";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { createRequest } from "@/app/api/request-history/request-history.api";
-import { Request, RequestListInfor } from "@/types/request";
+import { Request, RequestForm, RequestListInfor } from "@/types/request";
 import { useSession } from "next-auth/react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-
+import { getAllProduct } from "@/app/api/product/product.api";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
 interface ProductInformationDetailProps {
   product: Product | undefined;
   creator: Account | undefined;
   userId: string | undefined;
   isLoading: boolean;
-  isPending: boolean;
-  hanldeCreateRequest: () => Promise<void>;
   requestHistory: RequestListInfor | undefined;
+  token: string;
+  userProductList: ProductList | undefined;
 }
 
 const ProductInformationDetail = ({
@@ -31,13 +43,48 @@ const ProductInformationDetail = ({
   creator,
   userId,
   isLoading,
-  isPending,
-  hanldeCreateRequest,
   requestHistory,
+  token,
+  userProductList,
 }: ProductInformationDetailProps) => {
-  console.log(creator?.accountId);
+  const [isPending, setIsPending] = useState<boolean>(false);
+  const [request, setRequest] = useState<RequestForm>();
+  const [requestLoading, setRequestLoading] = useState<boolean>(false);
 
+  const [productBuyerId, setProductBuyerId] = useState<string>("");
+
+  const requestValue: RequestForm = {
+    buyerId: userId as string,
+    productBuyerId: productBuyerId,
+    productSellerId: product?.productId as string,
+    sellerId: creator?.accountId as string,
+    status: "Pending",
+  };
   const { toast } = useToast();
+
+  const hanldeCreateRequest = async () => {
+    try {
+      setIsPending(true);
+      const response = await createRequest(requestValue, token);
+      if (response === 200) {
+        toast({
+          description: `Your request is created susccessfully ✓ `,
+        });
+      } else {
+        toast({
+          description: `There has been an error while creating your request, please try again later !`,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        description: `Error : ${error} `,
+        variant: "destructive",
+      });
+    } finally {
+      setIsPending(false);
+    }
+  };
 
   const formattedDate = product?.createdDate
     ? format(product?.createdDate, "HH:mm dd/MM/yyyy")
@@ -139,9 +186,43 @@ const ProductInformationDetail = ({
               Requested
             </Button>
           ) : (
-            <Button onClick={hanldeCreateRequest} className="w-full">
-              Request
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger className="w-full" asChild>
+                <Button variant="outline">Request</Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  {product?.genre.name === "Exchange" && (
+                    <AlertDialogDescription className="overflow-hidden overflow-y-scroll max-h-[800px]">
+                      {userProductList?.items.map((product) => (
+                        <label key={product.productId} className="w-full flex">
+                          <div className="w-full">
+                            <img
+                              src={product.imagePro}
+                              height={0}
+                              width={0}
+                              className="w-full h-full object-cover"
+                            ></img>
+                          </div>
+                          <span>{product.title}</span>
+                          <Input
+                            type="radio"
+                            onClick={() => setProductBuyerId(product.productId)}
+                          ></Input>
+                        </label>
+                      ))}
+                    </AlertDialogDescription>
+                  )}
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={hanldeCreateRequest}>
+                    Create
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           )}
         </div>
       </div>
