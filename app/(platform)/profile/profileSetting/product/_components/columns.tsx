@@ -56,6 +56,23 @@ export const columns: ColumnDef<Product>[] = [
     },
   },
   {
+    accessorKey: "imagePro",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Image" />
+    ),
+    cell: ({ row }) => (
+      <div className="w-[26px] h-[26px]">
+        <img
+          src={row.original.imagePro}
+          height={0}
+          width={0}
+          alt="product img"
+          className="w-full h-full object-cover"
+        />
+      </div>
+    ),
+  },
+  {
     accessorKey: "category.name",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Category" />

@@ -50,6 +50,7 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
 import { useSession } from "next-auth/react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { useRouter } from "next/navigation";
 
 const ProductCreateForm = () => {
   const { toast } = useToast();
@@ -64,6 +65,7 @@ const ProductCreateForm = () => {
   const session = useSession();
   const token = session.data?.user?.token;
   const userId = session.data?.user?.accountId;
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof createProductSchema>>({
     resolver: zodResolver(createProductSchema),
@@ -126,6 +128,7 @@ const ProductCreateForm = () => {
             toast({
               description: `Your product has been created successfully ! `,
             });
+            router.push(`/profile/profileSetting/product`);
           } else {
             toast({
               description: `There has been some trouble while creating your product, please try again `,
