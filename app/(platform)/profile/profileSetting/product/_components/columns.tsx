@@ -11,31 +11,34 @@ import { DataTableRowActions } from "@/components/data-table-row-actions";
 interface Category {
   name: string;
 }
-
+const shouldIncludeDenyRes = true;
 export const columns: ColumnDef<Product>[] = [
+  // {
+  //   id: "select",
+  //   header: ({ table }) => (
+  //     <Checkbox
+  //       checked={
+  //         table.getIsAllPageRowsSelected() ||
+  //         (table.getIsSomePageRowsSelected() && "indeterminate")
+  //       }
+  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+  //       aria-label="Select all"
+  //       className="translate-y-[2px]"
+  //     />
+  //   ),
+  //   cell: ({ row }) => (
+  //     <Checkbox
+  //       checked={row.getIsSelected()}
+  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+  //       aria-label="Select row"
+  //       className="translate-y-[2px]"
+  //     />
+  //   ),
+  //   enableSorting: false,
+  //   enableHiding: false,
+  // },
   {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-        className="translate-y-[2px]"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-        className="translate-y-[2px]"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
+    accessorKey: "productId",
   },
   {
     accessorKey: "title",
@@ -54,6 +57,7 @@ export const columns: ColumnDef<Product>[] = [
         </div>
       );
     },
+    enableHiding: false,
   },
   {
     accessorKey: "imagePro",
@@ -109,7 +113,26 @@ export const columns: ColumnDef<Product>[] = [
       return value.includes(row.getValue(id));
     },
   },
-
+  {
+    accessorKey: "denyRes",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Reason" />
+    ),
+    cell: ({ row }) => <span>{row.original.denyRes}</span>,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+  },
+  {
+    accessorKey: "isDisplay",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Display" />
+    ),
+    cell: ({ row }) => <span>{row.original.isDisplay}</span>,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+  },
   {
     id: "actions",
     cell: ({ row }) => <DataTableRowActions row={row} />,

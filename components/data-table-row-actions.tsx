@@ -6,17 +6,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { labels } from "@/data/data";
 import { productSchema } from "@/data/schema";
+import { updateProductStatus } from "@/app/api/product/product.api";
+import { useSession } from "next-auth/react";
+import { useToast } from "./ui/use-toast";
+import Link from "next/link";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -25,7 +21,41 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
-  const task = productSchema.parse(row.original);
+  const product = productSchema.parse(row.original);
+  const session = useSession();
+  const { toast } = useToast();
+  const updateDisplay = async (display: string) => {
+    try {
+      if (
+        product.status === "InExchange" ||
+        product.status === "PendingExchange"
+      ) {
+        toast({
+          description: "This product is exchanging !",
+          variant: "destructive",
+        });
+        return;
+      } else {
+        const response = await updateProductStatus(
+          product.productId,
+          session.data?.user?.token as string,
+          product.denyRes,
+          product.status,
+          display
+        );
+        if (response === 200) {
+          toast({
+            description: "Update display status successfully !",
+          });
+          window.location.reload();
+        } else {
+          toast({
+            description: "There was an error while updating dispkay status !",
+          });
+        }
+      }
+    } catch (error) {}
+  };
 
   return (
     <DropdownMenu>
@@ -38,15 +68,21 @@ export function DataTableRowActions<TData>({
           <span className="sr-only">Open menu</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem>Edit</DropdownMenuItem>
-        <DropdownMenuItem>Make a copy</DropdownMenuItem>
-        <DropdownMenuItem>Favorite</DropdownMenuItem>
-        <DropdownMenuSeparator />
+      <DropdownMenuContent align="end" className="w-[100px]">
         <DropdownMenuItem>
-          Delete
-          <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
+          <Link href={`/profile/profileSetting/product/${product.productId}`}>
+            Update
+          </Link>
         </DropdownMenuItem>
+        {product.isDisplay === "true" ? (
+          <DropdownMenuItem onClick={() => updateDisplay("false")}>
+            Hide
+          </DropdownMenuItem>
+        ) : (
+          <DropdownMenuItem onClick={() => updateDisplay("true")}>
+            Display
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

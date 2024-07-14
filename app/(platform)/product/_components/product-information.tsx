@@ -2,7 +2,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Account } from "@/types/account";
-import { Product, ProductList } from "@/types/product";
+import { Product, ProductList, updateProductStatusType } from "@/types/product";
 import Link from "next/link";
 import defaultUserImg from "@/assets/img/user/default-avatar-icon-of-social-media-user-vector.jpg";
 import defaultimg from "@/assets/img/product/default-img.webp";
@@ -15,7 +15,10 @@ import { createRequest } from "@/app/api/request-history/request-history.api";
 import { Request, RequestForm, RequestListInfor } from "@/types/request";
 import { useSession } from "next-auth/react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { getAllProduct } from "@/app/api/product/product.api";
+import {
+  getAllProduct,
+  updateProductStatus,
+} from "@/app/api/product/product.api";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +31,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 interface ProductInformationDetailProps {
   product: Product | undefined;
   creator: Account | undefined;
@@ -36,6 +40,7 @@ interface ProductInformationDetailProps {
   requestHistory: RequestListInfor | undefined;
   token: string;
   userProductList: ProductList | undefined;
+  hanldeDeleteRequest: (requestId: string) => Promise<void>;
 }
 
 const ProductInformationDetail = ({
@@ -46,12 +51,15 @@ const ProductInformationDetail = ({
   requestHistory,
   token,
   userProductList,
+  hanldeDeleteRequest,
 }: ProductInformationDetailProps) => {
   const [isPending, setIsPending] = useState<boolean>(false);
-  const [request, setRequest] = useState<RequestForm>();
-  const [requestLoading, setRequestLoading] = useState<boolean>(false);
 
   const [productBuyerId, setProductBuyerId] = useState<string>("");
+  const router = useRouter();
+  const thisRequest = requestHistory?.items.find(
+    (items) => items.buyerId === userId && items.status === "Pending"
+  );
 
   const requestValue: RequestForm = {
     buyerId: userId as string,
@@ -60,16 +68,30 @@ const ProductInformationDetail = ({
     sellerId: creator?.accountId as string,
     status: "Pending",
   };
+
+  // const updateStatusValue: updateProductStatusType = {
+  //   denyRes: product?.denyRes as string,
+  //   isDisplay: product?.isDisplay as string,
+  //   status: "InExchange",
+  // };
   const { toast } = useToast();
 
   const hanldeCreateRequest = async () => {
     try {
       setIsPending(true);
       const response = await createRequest(requestValue, token);
+      const updateProduct = await updateProductStatus(
+        requestValue.productBuyerId as string,
+        token,
+        "",
+        "PendingExchange",
+        "true"
+      );
       if (response === 200) {
         toast({
           description: `Your request is created susccessfully ✓ `,
         });
+        router.push(`/product/${product?.productId}`);
       } else {
         toast({
           description: `There has been an error while creating your request, please try again later !`,
@@ -109,13 +131,13 @@ const ProductInformationDetail = ({
       </div>
       <Separator />
       <div className="flex space-x-6 mt-4">
-        <div className="h-full">
+        <div className="h-[390px] w-[585px]">
           <img
             src={product?.imagePro ? product?.imagePro : defaultimg.src}
             alt="image"
-            width={585}
-            height={390}
-            className="object-cover rounded-2xl"
+            width={0}
+            height={0}
+            className="object-cover rounded-2xl w-full h-full"
           ></img>
         </div>
         <div className="information w-[585px]  space-y-3">
@@ -177,12 +199,13 @@ const ProductInformationDetail = ({
               }}
             >
               <AiOutlineLoading3Quarters className="mr-2 h-4 w-4 animate-spin" />
-              Requesting
+              Processing
             </Button>
-          ) : requestHistory?.items.some(
-              (items) => items.buyerId === userId
-            ) ? (
-            <Button disabled={true} className="w-full">
+          ) : thisRequest ? (
+            <Button
+              onClick={() => hanldeDeleteRequest(thisRequest?.id!)}
+              className="w-full"
+            >
               Requested
             </Button>
           ) : (
@@ -195,32 +218,45 @@ const ProductInformationDetail = ({
                   <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                   {product?.genre.name === "Exchange" && (
                     <AlertDialogDescription className="overflow-hidden overflow-y-scroll max-h-[800px]">
-                      {userProductList?.items.map((product) => (
-                        <label key={product.productId} className="w-full flex">
-                          <div className="w-full">
-                            <img
-                              src={product.imagePro}
-                              height={0}
-                              width={0}
-                              className="w-full h-full object-cover"
-                            ></img>
-                          </div>
-                          <span>{product.title}</span>
-                          <Input
-                            type="radio"
-                            onClick={() => setProductBuyerId(product.productId)}
-                          ></Input>
-                        </label>
-                      ))}
+                      {userProductList?.totalItem! > 0
+                        ? userProductList?.items.map((product) => (
+                            <label
+                              key={product.productId}
+                              className="w-full flex"
+                            >
+                              <div className="w-full">
+                                <img
+                                  src={product.imagePro}
+                                  height={0}
+                                  width={0}
+                                  className="w-full h-full object-cover"
+                                ></img>
+                              </div>
+                              <span>{product.title}</span>
+                              <Input
+                                type="radio"
+                                onClick={() =>
+                                  setProductBuyerId(product.productId)
+                                }
+                              ></Input>
+                            </label>
+                          ))
+                        : "You have no product that can be traded with the user product"}
                     </AlertDialogDescription>
                   )}
                 </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={hanldeCreateRequest}>
-                    Create
-                  </AlertDialogAction>
-                </AlertDialogFooter>
+                {userProductList?.totalItem! > 0 ? (
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={hanldeCreateRequest}>
+                      Create
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                ) : (
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  </AlertDialogFooter>
+                )}
               </AlertDialogContent>
             </AlertDialog>
           )}

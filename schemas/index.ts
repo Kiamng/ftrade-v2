@@ -45,3 +45,20 @@ export const createProductSchema = z.object({
   cityId: z.string().min(1, "City is required"),
   genreId: z.string().min(1, "Genre is required"),
 });
+
+export const updateProductSchema = z.object({
+  title: z.string().min(10, "Title needs a minimum length of 10"),
+  description: z.string().min(15, "Description needs a minimum length of 15"),
+  imagePro: z.any(),
+  discount: z.coerce.number().nonnegative("Discount cannot be negative"),
+  price: z.coerce.number().nonnegative("Price cannot be negative"),
+  categoryId: z.string().min(1, "Category is required"),
+  quantity: z.coerce
+    .number()
+    .positive("Quantity can not be 0 or negative")
+    .refine((value) => value !== 0, {
+      message: "Quantity cannot be 0",
+    }),
+  cityId: z.string().min(1, "City is required"),
+  genreId: z.string().min(1, "Genre is required"),
+});

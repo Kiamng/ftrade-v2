@@ -157,19 +157,19 @@ const ProductCreateForm = () => {
     return acceptedTypes.includes(file.type);
   };
 
-  // const handleOnChangeSeleteImage = (
-  //   event: React.ChangeEvent<HTMLInputElement>
-  // ) => {
-  //   const file = event.target?.files?.[0];
-  //   if (file && isValidFileType(file)) {
-  //     const { files, displayUrl } = getImageData(event);
-  //     setPreview(displayUrl);
-  //     setImageState(files[0]);
-  //   } else {
-  //     setImageState(null);
-  //     alert("Invalid file type!");
-  //   }
-  // };
+  const handleOnChangeSeleteImage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target?.files?.[0];
+    if (file && isValidFileType(file)) {
+      const { files, displayUrl } = getImageData(event);
+      setPreview(displayUrl);
+      setImageState(files[0]);
+    } else {
+      setImageState(undefined);
+      alert("Invalid file type!");
+    }
+  };
 
   if (isLoading) {
     return (
@@ -395,14 +395,14 @@ const ProductCreateForm = () => {
                               disabled={isPending}
                               {...rest}
                               onChange={(event) => {
-                                const { files, displayUrl } =
-                                  getImageData(event);
-                                console.log("file la ", files);
-                                setPreview(displayUrl);
-                                onChange(files);
-                                setImageState(files[0]);
+                                handleOnChangeSeleteImage(event);
+                                // const { files, displayUrl } =
+                                //   getImageData(event);
+                                // setPreview(displayUrl);
+                                // setImageState(files[0]);
+                                // onChange(files);
                               }}
-                              className=""
+                              className="hidden"
                             />
                           </FormControl>
                           <FormMessage />

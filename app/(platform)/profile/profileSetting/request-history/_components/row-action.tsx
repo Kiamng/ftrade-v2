@@ -26,6 +26,7 @@ import { FaStar } from "react-icons/fa";
 import { Textarea } from "@/components/ui/textarea";
 import { Rate, RateForm } from "@/types/rate";
 import { rateProduct } from "@/app/api/rate/rate.api";
+import { updateProductStatus } from "@/app/api/product/product.api";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -42,17 +43,20 @@ export function RequestHistoryRowActions<TData>({
   const request = requestSchema.parse(row.original);
   const submitValue: RequestForm = {
     buyerId: request.buyer.accountId,
-    productBuyerId: "",
+    productBuyerId: request.productBuyer?.productId,
     productSellerId: request.productSeller.productId,
     sellerId: request.productSeller.creatorId,
     status: request.status,
   };
+
   const rateValue: RateForm = {
     customerId: request.buyer.accountId,
     descript: inputValue,
     productId: request.productSeller.productId,
     rated: rating,
   };
+  console.log(request.productSeller);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputValue(e.target.value);
   };
@@ -68,6 +72,26 @@ export function RequestHistoryRowActions<TData>({
         rateValue,
         session.data?.user?.token as string
       );
+      console.log("arrived");
+      const updateSellerProductStatus = await updateProductStatus(
+        request.productSeller.productId,
+        session.data?.user?.token as string,
+        "",
+        "Approved",
+        "true"
+      );
+      console.log("processed");
+      if (request.productBuyer) {
+        const updateBuyerProductStatus = await updateProductStatus(
+          request.productBuyer.productId,
+          session.data?.user?.token as string,
+          "",
+          "Approved",
+          "true"
+        );
+        console.log("done");
+      }
+
       toast.success("Rated successfully !");
       window.location.reload();
     } catch (error) {
@@ -77,7 +101,7 @@ export function RequestHistoryRowActions<TData>({
       window.location.reload();
     }
   };
-  if (request.status === "Processing") {
+  if (request.status === "InExchange") {
     return (
       <AlertDialog>
         <AlertDialogTrigger asChild>
@@ -116,7 +140,6 @@ export function RequestHistoryRowActions<TData>({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               disabled={rating === 0 || inputValue === ""}
               onClick={handleUpdateRequest}

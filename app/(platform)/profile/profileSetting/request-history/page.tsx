@@ -2,7 +2,11 @@
 import { Separator } from "@/components/ui/separator";
 import { Header } from "../_components/header";
 import { useEffect, useState } from "react";
-import { RequestListInfor, requestTableData } from "@/types/request";
+import {
+  RequestListInfor,
+  requestTableData,
+  yourRequest,
+} from "@/types/request";
 import { useSession } from "next-auth/react";
 import { toast } from "@/components/ui/use-toast";
 import { getAllRequest } from "@/app/api/request-history/request-history.api";
@@ -12,9 +16,7 @@ import { Product } from "@/types/product";
 import { DataTable } from "@/components/data-table";
 import { requestHistoryColumns } from "./_components/columns";
 const RequestHistoryPage = () => {
-  const [requestDataList, setRequestDataList] = useState<requestTableData[]>(
-    []
-  );
+  const [requestDataList, setRequestDataList] = useState<yourRequest[]>([]);
   const [requestListInfor, setRequestListInfor] = useState<RequestListInfor>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const session = useSession();

@@ -1,13 +1,14 @@
 "use server";
 
-import { createProduct } from "@/app/api/product/product.api";
+import { updateProduct } from "@/app/api/product/product.api";
 import { createProductSchema } from "@/schemas";
 import * as z from "zod";
 
-export const CreateProductAction = async (
+export const UpdateProductAction = async (
   values: z.infer<typeof createProductSchema>,
-  userId: string,
-  token: string
+  isDisplay: string,
+  token: string,
+  productId: string
 ) => {
   const validatedFields = createProductSchema.safeParse(values);
 
@@ -36,10 +37,13 @@ export const CreateProductAction = async (
     cityId,
     genreId,
   };
-  const response = await createProduct(newCreatedProduct, userId, token);
-  // if (response.data.status === 400 || response.data.status === 404) {
-  //   return { error: response.data.message };
-  // }
+
+  const response = await updateProduct(
+    newCreatedProduct,
+    token,
+    productId,
+    isDisplay
+  );
 
   return response;
 };

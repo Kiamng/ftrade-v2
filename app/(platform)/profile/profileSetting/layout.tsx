@@ -8,11 +8,11 @@ export default function ProfileSettingLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="w-full  p-8 ">
+    <div className="w-full  py-8 ">
       <div className="mx-auto h-full ">
         <div className="flex">
           <SideBar />
-          <div className="w-[70%] px-8">{children}</div>
+          <div className="w-[70%] pl-8">{children}</div>
           <Toaster />
         </div>
       </div>

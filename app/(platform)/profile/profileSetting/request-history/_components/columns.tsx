@@ -3,13 +3,13 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "../../../../../../components/data-table-column-header";
 
-import { requestTableData } from "@/types/request";
+import { requestTableData, yourRequest } from "@/types/request";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { RequestHistoryRowActions } from "./row-action";
 import Link from "next/link";
 
-export const requestHistoryColumns: ColumnDef<requestTableData>[] = [
+export const requestHistoryColumns: ColumnDef<yourRequest>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -73,7 +73,7 @@ export const requestHistoryColumns: ColumnDef<requestTableData>[] = [
           />
         </div>
         <Link href={`/product/${row.original.productBuyer?.productId}`}>
-          {row.original.productSeller.title}
+          {row.original.productBuyer?.title}
         </Link>
       </div>
     ),
@@ -95,7 +95,7 @@ export const requestHistoryColumns: ColumnDef<requestTableData>[] = [
     ),
     cell: ({ row }) => (
       <span>
-        {row.original.status === "Processing" &&
+        {row.original.status === "InExchange" &&
           row.original.seller.phoneNumber}
       </span>
     ),
