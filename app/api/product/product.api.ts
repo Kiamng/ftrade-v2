@@ -1,12 +1,14 @@
-import axiosClient from "@/lib/axiosClient";
-import { createProductSchema } from "@/schemas";
-import { Product, ProductList } from "@/types/product";
+import axiosClient, { axiosClientUpload } from "@/lib/axiosClient";
+import { createProductSchema, updateProductSchema } from "@/schemas";
+import { Product, ProductList, updateProductStatusType } from "@/types/product";
 import * as z from "zod";
 
 export const END_POINT = {
   GET_ALL: "/Product/GetAllProduct",
   CREATE_PRODUCT: "/Product/CreateProduct",
   GET_PRODUCT: "/Product/GetProductById",
+  UPDATE_STATUS: "/Product/UpdateStatusProduct/id",
+  UPDATE_PRODUCT: "/Product/UpdateProduct/id",
 };
 
 export const getAllProduct = async ({
@@ -114,4 +116,59 @@ export const getDisplayingProductByUserId = async (
     }
   );
   return response.data;
+};
+
+export const updateProductStatus = async (
+  id: string,
+  token: string,
+  denyRes: string,
+  status: string,
+  isDisplay: string
+) => {
+  const response = await axiosClient.put(
+    `${END_POINT.UPDATE_STATUS}?id=${id}`,
+    {
+      denyRes: denyRes,
+      status: status,
+      isDisplay: isDisplay,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response.status;
+};
+
+export const updateProduct = async (
+  values: z.infer<typeof createProductSchema>,
+  token: string,
+  productId: string,
+  isDisplay: string
+) => {
+  console.log("api");
+
+  const response = await axiosClient.put(
+    `${END_POINT.UPDATE_PRODUCT}?id=${productId}`,
+    {
+      title: values.title,
+      description: values.description,
+      imagePro: values.imagePro,
+      price: values.price,
+      discount: 0,
+      categoryId: values.categoryId,
+      quantity: values.quantity,
+      cityId: values.cityId,
+      status: "Pending",
+      genreId: values.genreId,
+      isDisplay: isDisplay,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response.status;
 };

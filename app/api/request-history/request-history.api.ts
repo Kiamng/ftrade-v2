@@ -5,6 +5,8 @@ const END_POINT = {
   CREATE_REQUEST: "/RequestHistory/CreateRequestHistory",
   GET_REQUEST: "/RequestHistory/GetAllRequestHistories",
   UPDATE_REQUEST: "/RequestHistory/UpdateRequestHistory",
+  UPDATE_REQUEST_STATUS: "/RequestHistory/UpdateStatus",
+  DELETE_REQUEST: "/RequestHistory/DeleteRequestHistory",
 };
 
 export const createRequest = async (request: RequestForm, token: string) => {
@@ -76,6 +78,37 @@ export const updateRequest = async (
   const response = await axiosClient.put(
     `${END_POINT.UPDATE_REQUEST}/${requestId}`,
     requestData,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response;
+};
+
+export const updateRequestStatus = async (
+  requestId: string,
+  status: string,
+  token: string
+) => {
+  const response = await axiosClient.put(
+    `${END_POINT.UPDATE_REQUEST_STATUS}/${requestId}/status`,
+    {
+      status: status,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response.status;
+};
+
+export const deleteRequest = async (id: string, token: string) => {
+  const response = await axiosClient.delete(
+    `${END_POINT.DELETE_REQUEST}/${id}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,

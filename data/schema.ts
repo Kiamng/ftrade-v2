@@ -3,6 +3,7 @@ import { z } from "zod";
 // We're keeping a simple non-relational schema here.
 // IRL, you will have a schema for your data models.
 export const productSchema = z.object({
+  productId: z.string(),
   title: z.string(),
   category: z.object({
     categoryId: z.string(),
@@ -16,11 +17,15 @@ export const productSchema = z.object({
     cityId: z.string(),
     name: z.string(),
   }),
-  // Display: z.string(),
+  denyRes: z
+    .string()
+    .nullable()
+    .transform((value) => value ?? ""),
+  isDisplay: z.string(),
   status: z.string(),
 });
 
-export type Task = z.infer<typeof productSchema>;
+export type ProductSchema = z.infer<typeof productSchema>;
 
 export const requestSchema = z.object({
   requestId: z.string(),

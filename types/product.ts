@@ -38,3 +38,9 @@ export type ProductList = {
   totalPages: number;
   pageNumber: number;
 };
+
+export type updateProductStatusType = {
+  denyRes: string;
+  status: string;
+  isDisplay: string;
+};

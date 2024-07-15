@@ -3,7 +3,7 @@ import { Rate, RateForm, RateListInfor } from "@/types/rate";
 
 const END_POINT = {
   CREATE_RATE: "/Rating/CreateRating",
-  GET_RATE: "/Rating/GetAllRatings",
+  GET_RATE: "/Rating/GetRatingsByProductId/ByProduct",
 };
 
 export const rateProduct = async (rate: RateForm, token: string) => {

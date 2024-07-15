@@ -5,15 +5,23 @@ export type RequestForm = {
   buyerId: string;
   sellerId: string;
   productSellerId: string;
-  productBuyerId: string;
+  productBuyerId: string | undefined;
   status: string;
 };
 
-export type requestTableData = {
-  seller: Account;
+export type productsByRequest = {
   buyer: Account;
   productBuyer: Product | null;
+};
+
+export type requestTableData = {
   productSeller: Product;
+  seller: Account;
+  listProductByRequest: {
+    requestId: string;
+    buyer: Account;
+    productBuyer: Product | null;
+  }[];
   createdDate: Date;
   status: string;
 };
@@ -34,4 +42,14 @@ export type RequestListInfor = {
   pageSize: number;
   totalPages: number;
   pageNumber: number;
+};
+
+export type yourRequest = {
+  requestId: string;
+  seller: Account;
+  buyer: Account;
+  productBuyer: Product | null;
+  productSeller: Product;
+  createdDate: Date;
+  status: string;
 };
