@@ -33,7 +33,7 @@ export const getAllComment = async (
   token: string
 ): Promise<CommentListInfor> => {
   const response = await axiosClient.get(
-    `${END_POINT.GET_ALL}/${productId}?ProductId=${productId}`,
+    `${END_POINT.GET_ALL}?ProductId=${productId}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,

@@ -118,8 +118,15 @@ const RequestFormBuyerPage = () => {
         "InExchange",
         session.data?.user?.token as string
       );
-      const updateProduct = await updateProductStatus(
+      const updateSellerProduct = await updateProductStatus(
         value.productSellerId,
+        session.data?.user?.token as string,
+        "",
+        "InExchange",
+        "true"
+      );
+      const updateBuyerProduct = await updateProductStatus(
+        value.productBuyerId,
         session.data?.user?.token as string,
         "",
         "InExchange",
@@ -252,7 +259,7 @@ const RequestFormBuyerPage = () => {
                           "HH:mm dd/MM/yyyy"
                         )}
                       </div>
-                      {product.status === "Pending" ? (
+                      {product.productSeller.status !== "InExchange" ? (
                         <Button
                           onClick={() => handleUpdateRequest(thisRequest!)}
                         >
@@ -263,6 +270,17 @@ const RequestFormBuyerPage = () => {
                       ) : (
                         <></>
                       )}
+                      {/* {product.status === "PendingExchange" ? (
+                        <Button
+                          onClick={() => handleUpdateRequest(thisRequest!)}
+                        >
+                          Accept
+                        </Button>
+                      ) : thisRequest?.status === "InExchange" ? (
+                        <Button disabled={true}>Accepted</Button>
+                      ) : (
+                        <></>
+                      )} */}
                     </div>
                   );
                 })}

@@ -12,6 +12,7 @@ export type Rate = {
   customerId: string;
   descript: string;
   productId: string;
+  createdDate: Date;
   rated: number;
 };
 

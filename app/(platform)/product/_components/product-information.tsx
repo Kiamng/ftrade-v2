@@ -66,7 +66,7 @@ const ProductInformationDetail = ({
     productBuyerId: productBuyerId,
     productSellerId: product?.productId as string,
     sellerId: creator?.accountId as string,
-    status: "Pending",
+    status: "PendingExchange",
   };
 
   // const updateStatusValue: updateProductStatusType = {

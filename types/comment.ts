@@ -1,8 +1,10 @@
 import { Account } from "./account";
 
 export type Comment = {
+  commentId: string;
   commenterId: string;
   productId: string;
+  postDate: Date;
   descript: string;
 };
 
@@ -16,4 +18,5 @@ export type CommentListInfor = {
 
 export type CommentByUser = {
   user: Account;
+  comment: Comment;
 };

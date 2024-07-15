@@ -18,7 +18,9 @@ import { useEffect, useState } from "react";
 import { createComment, getAllComment } from "@/app/api/comment/comment.api";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/components/ui/use-toast";
-import { CommentListInfor } from "@/types/comment";
+import { CommentByUser, CommentListInfor } from "@/types/comment";
+import { getUserById } from "@/app/api/account/account.api";
+import { format } from "date-fns";
 
 interface CommentSectionProps {
   isLoading: boolean;
@@ -28,28 +30,48 @@ interface CommentSectionProps {
 const CommentSection = ({ isLoading, product }: CommentSectionProps) => {
   const session = useSession();
   const { toast } = useToast();
+  const [commentLoading, setCommentLoading] = useState<boolean>(false);
+  const [commentByUser, setCommentByUser] = useState<CommentByUser[]>([]);
   const [commentListInfor, setCommentListInfor] = useState<CommentListInfor>();
   const [commentValue, setCommentValue] = useState<string>("");
   const [isPending, SetIsPending] = useState<boolean>(false);
+  const [created, setCreated] = useState<boolean>(false);
   const handleOnchange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setCommentValue(e.target.value);
   };
 
   useEffect(() => {
     const fetchComment = async () => {
-      if (product?.commentCount || product?.commentCount! > 0) {
-        const response = await getAllComment(
-          product?.productId as string,
-          session.data?.user?.token as string
-        );
-        console.log(response);
-
-        setCommentListInfor(response);
+      try {
+        setCreated(false);
+        setCommentLoading(true);
+        if (product?.commentCount || product?.commentCount! > 0) {
+          const response = await getAllComment(
+            product?.productId as string,
+            session.data?.user?.token as string
+          );
+          setCommentListInfor(response);
+          const commentByUser = response.items.map(async (comment) => {
+            const creator = await getUserById(
+              comment.commenterId,
+              session.data?.user?.token as string
+            );
+            return {
+              user: creator,
+              comment: comment,
+            };
+          });
+          const userComment = await Promise.all(commentByUser);
+          setCommentByUser(userComment);
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setCommentLoading(false);
       }
     };
     fetchComment();
-  }, [product?.commentCount]);
-
+  }, [product?.commentCount, created === true]);
   const create = async () => {
     try {
       SetIsPending(true);
@@ -71,9 +93,10 @@ const CommentSection = ({ isLoading, product }: CommentSectionProps) => {
       console.log(error);
     } finally {
       SetIsPending(false);
+      setCreated(true);
     }
   };
-  if (isLoading) {
+  if (isLoading || commentLoading) {
     return <Skeleton className="w-full h-[500px] rounded-2xl" />;
   }
 
@@ -109,32 +132,49 @@ const CommentSection = ({ isLoading, product }: CommentSectionProps) => {
         Comment section
       </div>
       <div className="create-comment w-full flex flex-col p-4 pb-4 border-b space-y-4">
-        <Textarea placeholder="Let's ask something about this product or discuss with other people." />
+        <Textarea
+          onChange={handleOnchange}
+          placeholder="Let's ask something about this product or discuss with other people."
+        />
         <div>
-          <Button>Send</Button>
+          <Button
+            disabled={!commentValue || commentValue === "" || isPending}
+            onClick={create}
+          >
+            Send
+          </Button>
         </div>
       </div>
       <div className="comment-list w-full flex flex-col">
-        {commentListInfor?.items.map((comment, index) => (
-          <div key={index} className=" flex items-start m-4 border-b pb-4">
-            <Image
-              src={defaultUserImg}
+        {commentByUser.map((comment) => (
+          <div
+            key={comment.comment.commentId}
+            className=" flex items-start m-4 border-b pb-4"
+          >
+            <img
+              src={
+                comment.user.avatarUrl
+                  ? comment.user.avatarUrl
+                  : defaultUserImg.src
+              }
               alt="user Avatar"
               width={36}
               height={36}
               className="rounded-full object-fill"
-            ></Image>
+            ></img>
             <div className="w-full ml-3 space-y-4">
               <div>
                 <Link
                   href={"#"}
                   className="hover:underline text-lg font-medium"
                 >
-                  quoclam
+                  {comment.user.userName}
                 </Link>
-                <p>Hi guys, which color is the best now ?</p>
+                <p>{comment.comment.descript}</p>
               </div>
-              <p className="text-sm text-slate-400"> date-date-date</p>
+              <p className="text-sm text-slate-400">
+                {format(comment.comment.postDate, "HH:mm dd/MM/yyyy")}
+              </p>
             </div>
           </div>
         ))}

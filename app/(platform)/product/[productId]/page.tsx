@@ -76,6 +76,8 @@ const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
             };
           });
           const userRates = await Promise.all(userRatePromises);
+          console.log(userRates);
+
           setUserRates(userRates);
         }
 

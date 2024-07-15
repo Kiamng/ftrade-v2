@@ -16,6 +16,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { userRate } from "@/types/rate";
 import { Separator } from "@/components/ui/separator";
+import { format } from "date-fns";
 
 interface RatingSectionProp {
   product: Product | undefined;
@@ -97,7 +98,9 @@ const RatingSection = ({ product, isLoading, userRate }: RatingSectionProp) => {
                       );
                     })}
                   </div>
-                  <p className="text-sm text-slate-400"> date-date-date</p>
+                  <p className="text-sm text-slate-400">
+                    {format(rate.rate.createdDate, "HH:mm dd/MM/yyyy")}
+                  </p>
                 </div>
               </div>
             ))}
