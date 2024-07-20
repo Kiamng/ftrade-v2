@@ -58,7 +58,7 @@ const ProductInformationDetail = ({
   const [productBuyerId, setProductBuyerId] = useState<string>("");
   const router = useRouter();
   const thisRequest = requestHistory?.items.find(
-    (items) => items.buyerId === userId && items.status === "Pending"
+    (items) => items.buyerId === userId && items.status === "PendingExchange"
   );
 
   const requestValue: RequestForm = {

@@ -16,14 +16,13 @@ export type productsByRequest = {
 
 export type requestTableData = {
   productSeller: Product;
-  seller: Account;
   listProductByRequest: {
     requestId: string;
     buyer: Account;
     productBuyer: Product | null;
+    requestDate: Date;
+    requestStatus: string;
   }[];
-  createdDate: Date;
-  status: string;
 };
 
 export type Request = {

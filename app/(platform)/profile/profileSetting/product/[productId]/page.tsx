@@ -51,6 +51,7 @@ import { Separator } from "@/components/ui/separator";
 import { uploadImage } from "@/app/api/image/image.apit";
 import defaultImg from "@/assets/img/product/default-img.webp";
 import { UpdateProductAction } from "@/actions/product/updateProduct";
+import { CornerDownLeft } from "lucide-react";
 interface EditProductPageProps {
   params: { productId: string };
 }
@@ -72,6 +73,10 @@ const EditProductPage = ({ params }: EditProductPageProps) => {
   const token = session.data?.user?.token;
   const userId = session.data?.user?.accountId;
   const router = useRouter();
+
+  const handleGoBack = () => {
+    router.back();
+  };
   const handleEditClick = () => {
     setIsEdit(!isEdit);
   };
@@ -229,7 +234,11 @@ const EditProductPage = ({ params }: EditProductPageProps) => {
     );
   }
   return (
-    <div className="w-full">
+    <div className="w-full space-y-4">
+      <Button onClick={handleGoBack} className="space-x-2">
+        {" "}
+        <CornerDownLeft /> <span>Go back</span>
+      </Button>
       <Card className="w-full">
         <CardHeader>
           <div className="flex">

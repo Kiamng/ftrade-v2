@@ -3,17 +3,13 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Account } from "@/types/account";
 import { getUserById } from "@/app/api/account/account.api";
-import {
-  getAllProduct,
-  getDisplayingProductByUserId,
-} from "@/app/api/product/product.api";
+import { getAllProduct } from "@/app/api/product/product.api";
 import { Product, ProductList } from "@/types/product";
 import UserInformation from "./_components/user-information";
 import UserProductList from "./_components/user-product-list";
 import { City } from "@/types/city";
 import { Category } from "@/types/category";
 import { Genre } from "@/types/genre";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { Separator } from "@/components/ui/separator";
 import { getAllGenres } from "@/app/api/genre/genre.api";
 import { getAllCities } from "@/app/api/city/city.api";
