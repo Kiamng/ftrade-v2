@@ -2,22 +2,17 @@
 
 import { getUserById } from "@/app/api/account/account.api";
 import {
+  getAllProduct,
   getProductById,
   updateProductStatus,
 } from "@/app/api/product/product.api";
 import {
+  deleteRequest,
   getAllRequest,
-  updateRequest,
   updateRequestStatus,
 } from "@/app/api/request-history/request-history.api";
 import { toast } from "@/components/ui/use-toast";
-import { Product } from "@/types/product";
-import {
-  Request,
-  RequestForm,
-  RequestListInfor,
-  requestTableData,
-} from "@/types/request";
+import { Request, RequestListInfor, requestTableData } from "@/types/request";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Header } from "../_components/header";
@@ -33,72 +28,79 @@ import {
 import Link from "next/link";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { Product } from "@/types/product";
 const RequestFormBuyerPage = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
+
   const [requestDataList, setRequestDataList] = useState<requestTableData[]>(
     []
   );
+
+  const [userRequestList, setUserRequestList] = useState<RequestListInfor>();
   const [isPending, setIsPending] = useState<boolean>(false);
-  const [requestListInfor, setRequestListInfor] = useState<RequestListInfor>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const session = useSession();
-  const [requestValue, setRequestValue] = useState<RequestForm>();
 
   useEffect(() => {
     const fetchRequestData = async () => {
       try {
         setIsLoading(true);
-        const response = await getAllRequest({
+        const userRequestList = await getAllRequest({
           token: session.data?.user?.token as string,
           SellerId: session.data?.user?.accountId as string,
           PageNumber: 1,
           PageSize: 10,
         });
-        setRequestListInfor(response);
-        const requestDataPromises = response.items.map(async (request) => {
-          const productSeller = await getProductById(
-            request.productSellerId,
-            session.data?.user?.token as string
-          );
-          const seller = await getUserById(
-            request.sellerId,
-            session.data?.user?.token as string
-          );
-          const requestsByProduct = await response.items.map(
-            async (request) => {
-              const buyer = await getUserById(
-                request.buyerId,
-                session.data?.user?.token as string
-              );
-              let productBuyer: Product | null = null;
-              if (request.productBuyerId) {
-                productBuyer = await getProductById(
-                  request.productBuyerId,
-                  session.data?.user?.token as string
-                );
-              }
-              const id = request.id;
-              return {
-                requestId: id,
-                buyer: buyer,
-                productBuyer: productBuyer,
-              };
-            }
-          );
-
-          return {
-            seller: seller,
-            productSeller: productSeller,
-            listProductByRequest: await Promise.all(requestsByProduct),
-            createdDate: request.createdDate,
-            status: request.status,
-          };
+        setUserRequestList(userRequestList);
+        const userProductList = await getAllProduct({
+          token: session.data?.user?.token as string,
+          creatorId: session.data?.user?.accountId as string,
+          isDisplay: "true",
+          pageNumber: 1,
+          pageSize: 5,
+          status: "Approved" || "InExchange",
+          genre: "Exchange",
         });
 
-        const requestDataList = await Promise.all(requestDataPromises);
-        console.log(requestDataList);
+        const requestTableDataArray: requestTableData[] = [];
+        for (const product of userProductList.items) {
+          const listProductByRequest = await Promise.all(
+            userRequestList.items
+              .filter(
+                (request) => request.productSellerId === product.productId
+              )
+              .map(async (request) => {
+                const buyer = await getUserById(
+                  request.buyerId,
+                  session.data?.user?.token as string
+                );
+                let productBuyer: Product | null = null;
+                if (request.productBuyerId) {
+                  productBuyer = await getProductById(
+                    request.productBuyerId,
+                    session.data?.user?.token as string
+                  );
+                }
+                return {
+                  requestId: request.id,
+                  buyer,
+                  productBuyer,
+                  requestDate: request.createdDate,
+                  requestStatus: request.status,
+                };
+              })
+          );
+          if (listProductByRequest.length > 0) {
+            requestTableDataArray.push({
+              productSeller: product,
+              listProductByRequest,
+            });
+          }
+        }
+        setRequestDataList(requestTableDataArray);
+        console.log(requestTableDataArray);
 
-        setRequestDataList(requestDataList);
+        // const requestDataList = await Promise.all(requestDataPromises);
       } catch (error) {
         toast({
           description: `There was an error fetching the requests.`,
@@ -110,23 +112,62 @@ const RequestFormBuyerPage = () => {
     fetchRequestData();
   }, [session.data?.user?.accountId, session.data?.user?.token]);
 
-  const handleUpdateRequest = async (value: Request) => {
+  const cancelOtherRequest = async (
+    requestId: string,
+    productSellerId: string
+  ) => {
+    try {
+      await Promise.all(
+        userRequestList!.items
+          .filter(
+            (request) =>
+              request.id !== requestId &&
+              request.productSellerId === productSellerId
+          )
+          .map(async (request) => {
+            const updateBuyerProducts = await updateProductStatus(
+              request.productSellerId,
+              session.data?.user?.token as string,
+              "",
+              "Approved",
+              "true"
+            );
+            const deleteRequests = await deleteRequest(
+              request.id,
+              session.data?.user?.token as string
+            );
+          })
+      );
+    } catch (error) {
+      toast({
+        description: "There was an error while processing your request !",
+      });
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  const handleUpdateRequest = async (
+    requestId: string,
+    productSellerId: string,
+    productBuyerId: string
+  ) => {
     try {
       setIsPending(true);
       const response = await updateRequestStatus(
-        value.id,
+        requestId,
         "InExchange",
         session.data?.user?.token as string
       );
       const updateSellerProduct = await updateProductStatus(
-        value.productSellerId,
+        productSellerId,
         session.data?.user?.token as string,
         "",
         "InExchange",
         "true"
       );
       const updateBuyerProduct = await updateProductStatus(
-        value.productBuyerId,
+        productBuyerId,
         session.data?.user?.token as string,
         "",
         "InExchange",
@@ -220,11 +261,6 @@ const RequestFormBuyerPage = () => {
               </div>
               <CollapsibleContent className="space-y-2  w-full ">
                 {product.listProductByRequest.map((request) => {
-                  const thisRequest = requestListInfor?.items.find(
-                    (items) =>
-                      items.productBuyerId === request.productBuyer?.productId
-                  );
-
                   return (
                     <div
                       key={request.requestId}
@@ -251,36 +287,36 @@ const RequestFormBuyerPage = () => {
                           </Button>
                         </Link>
                       </div>
-                      <Badge>{thisRequest?.status}</Badge>
+                      <Badge>{request?.requestStatus}</Badge>
                       <div>
                         <span className="underline">Request at:</span>{" "}
                         {format(
-                          thisRequest?.createdDate as Date,
+                          request?.requestDate as Date,
                           "HH:mm dd/MM/yyyy"
                         )}
                       </div>
-                      {product.productSeller.status !== "InExchange" ? (
+                      {product.productSeller.status !== "InExchange" &&
+                      request?.requestStatus !== "Done" ? (
                         <Button
-                          onClick={() => handleUpdateRequest(thisRequest!)}
+                          onClick={() => [
+                            handleUpdateRequest(
+                              request.requestId,
+                              product.productSeller.productId,
+                              request.productBuyer?.productId!
+                            ),
+                            cancelOtherRequest(
+                              request.requestId,
+                              product.productSeller.productId
+                            ),
+                          ]}
                         >
                           Accept
                         </Button>
-                      ) : thisRequest?.status === "InExchange" ? (
+                      ) : request?.requestStatus === "InExchange" ? (
                         <Button disabled={true}>Accepted</Button>
                       ) : (
                         <></>
                       )}
-                      {/* {product.status === "PendingExchange" ? (
-                        <Button
-                          onClick={() => handleUpdateRequest(thisRequest!)}
-                        >
-                          Accept
-                        </Button>
-                      ) : thisRequest?.status === "InExchange" ? (
-                        <Button disabled={true}>Accepted</Button>
-                      ) : (
-                        <></>
-                      )} */}
                     </div>
                   );
                 })}
@@ -292,3 +328,41 @@ const RequestFormBuyerPage = () => {
   );
 };
 export default RequestFormBuyerPage;
+
+// const productSeller = await getProductById(
+//   request.productSellerId,
+//   session.data?.user?.token as string
+// );
+// const seller = await getUserById(
+//   request.sellerId,
+//   session.data?.user?.token as string
+// );
+// const requestsByProduct = await response.items.map(
+//   async (request) => {
+//     const buyer = await getUserById(
+//       request.buyerId,
+//       session.data?.user?.token as string
+//     );
+//     let productBuyer: Product | null = null;
+//     if (request.productBuyerId) {
+//       productBuyer = await getProductById(
+//         request.productBuyerId,
+//         session.data?.user?.token as string
+//       );
+//     }
+//     const id = request.id;
+//     return {
+//       requestId: id,
+//       buyer: buyer,
+//       productBuyer: productBuyer,
+//     };
+//   }
+// );
+
+// return {
+//   seller: seller,
+//   productSeller: productSeller,
+//   listProductByRequest: await Promise.all(requestsByProduct),
+//   createdDate: request.createdDate,
+//   status: request.status,
+// };

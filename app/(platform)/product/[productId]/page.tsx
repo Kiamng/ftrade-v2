@@ -58,28 +58,26 @@ const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
           sesson.data?.user?.token as string
         );
         setCreator(user);
-        if (response.ratedCount > 0) {
-          const rateResponse = await getAllRate(
-            params.productId,
+        const rateResponse = await getAllRate(
+          params.productId,
+          sesson.data?.user?.token as string
+        );
+        setRate(rate);
+
+        const userRatePromises = rateResponse.items.map(async (rate) => {
+          const user = await getUserById(
+            rate.customerId,
             sesson.data?.user?.token as string
           );
-          setRate(rate);
+          return {
+            user: user,
+            rate: rate,
+          };
+        });
+        const userRates = await Promise.all(userRatePromises);
+        console.log(userRates);
 
-          const userRatePromises = rateResponse.items.map(async (rate) => {
-            const user = await getUserById(
-              rate.customerId,
-              sesson.data?.user?.token as string
-            );
-            return {
-              user: user,
-              rate: rate,
-            };
-          });
-          const userRates = await Promise.all(userRatePromises);
-          console.log(userRates);
-
-          setUserRates(userRates);
-        }
+        setUserRates(userRates);
 
         if (response.commentCount > 0) {
         }
