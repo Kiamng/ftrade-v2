@@ -34,6 +34,7 @@ export const getAllRequest = async ({
   SellerId,
   ProductSellerId,
   ProductBuyerId,
+  status,
   PageNumber,
   PageSize,
   SortBy,
@@ -44,6 +45,7 @@ export const getAllRequest = async ({
   SellerId?: string;
   ProductSellerId?: string;
   ProductBuyerId?: string;
+  status?: string;
   PageNumber?: number;
   PageSize?: number;
   SortBy?: string;
@@ -54,6 +56,7 @@ export const getAllRequest = async ({
   if (SellerId) params.append("SellerId", SellerId);
   if (ProductSellerId) params.append("ProductSellerId", ProductSellerId);
   if (ProductBuyerId) params.append("ProductBuyerId", ProductBuyerId);
+  if (status) params.append("Status", status);
   if (PageNumber) params.append("PageNumber", PageNumber.toString());
   if (PageSize) params.append("PageSize", PageSize.toString());
   if (SortBy) params.append("SortBy", SortBy);

@@ -56,7 +56,7 @@ const ProductCreateForm = () => {
   const { toast } = useToast();
   const [isPending, setIsPending] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isFree, setIsFree] = useState<boolean>(false);
+  const [noSell, setNoSell] = useState<boolean>(false);
   const [genres, setGenres] = useState<Genre[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [cities, setCities] = useState<City[]>([]);
@@ -102,11 +102,12 @@ const ProductCreateForm = () => {
   }, []);
 
   const handleGenre = (genreName: string) => {
-    if (genreName === "Gift") {
-      setIsFree(true);
+    if (genreName === "Gift" || genreName === "Exchange") {
+      setNoSell(true);
       form.setValue("price", 0);
+      form.setValue("quantity", 1);
     } else {
-      setIsFree(false);
+      setNoSell(false);
     }
   };
 
@@ -139,8 +140,6 @@ const ProductCreateForm = () => {
           console.log("failed");
         }
       }
-      // const response = await CreateProduct(testData);
-      // console.log(response);
     } catch (error) {
       console.error(error);
     } finally {
@@ -285,7 +284,7 @@ const ProductCreateForm = () => {
                           <FormLabel>Description</FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="Brand name, color, please describe more about your product"
+                              placeholder="Brand name, color, please describe more about your product. If you want to exchange, tell us what you are looking for ?"
                               disabled={isPending}
                               {...field}
                             />
@@ -340,7 +339,7 @@ const ProductCreateForm = () => {
                               <Input
                                 className="w-[190px]"
                                 type="number"
-                                disabled={isPending || isFree}
+                                disabled={isPending || noSell}
                                 {...field}
                               />
                             </FormControl>
@@ -358,7 +357,7 @@ const ProductCreateForm = () => {
                               <Input
                                 className="w-[190px]"
                                 type="number"
-                                disabled={isPending}
+                                disabled={isPending || noSell}
                                 {...field}
                               />
                             </FormControl>
@@ -372,7 +371,7 @@ const ProductCreateForm = () => {
                     <FormField
                       control={form.control}
                       name="imagePro"
-                      render={({ field: { onChange, value, ...rest } }) => (
+                      render={({ field }) => (
                         <FormItem>
                           <FormLabel>
                             <div className="flex items-center justify-between">
@@ -393,14 +392,9 @@ const ProductCreateForm = () => {
                               accept=""
                               id="imageImporter"
                               disabled={isPending}
-                              {...rest}
+                              {...field}
                               onChange={(event) => {
                                 handleOnChangeSeleteImage(event);
-                                // const { files, displayUrl } =
-                                //   getImageData(event);
-                                // setPreview(displayUrl);
-                                // setImageState(files[0]);
-                                // onChange(files);
                               }}
                               className="hidden"
                             />

@@ -145,6 +145,7 @@ const CommentSection = ({ isLoading, product }: CommentSectionProps) => {
           </Button>
         </div>
       </div>
+
       <div className="comment-list w-full flex flex-col">
         {commentByUser.map((comment) => (
           <div

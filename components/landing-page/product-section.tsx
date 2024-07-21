@@ -31,9 +31,14 @@ const ProductSection = ({ data }: ProductSectionProps) => {
       <p className="text-sm text-slate-500 underline">{formattedDate}</p>
 
       <div className="flex flex-row w-full justify-between">
-        <Badge className="text-base">
-          {data?.price === 0 ? "Free" : `${data?.price} VND`}
-        </Badge>
+        {data?.genre.name === "Exchange" || data?.genre.name === "Gift" ? (
+          <></>
+        ) : (
+          <Badge className="text-base">
+            {data?.price === 0 ? "Free" : `${data?.price.toLocaleString()} VND`}
+          </Badge>
+        )}
+
         <Badge className="text-base">{data?.genre.name}</Badge>
       </div>
       <div className="bg-slate-100 p-4 rounded-2xl text-sm min-h-[100px]">

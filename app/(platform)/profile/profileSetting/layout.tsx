@@ -12,7 +12,7 @@ export default function ProfileSettingLayout({
       <div className="mx-auto h-full ">
         <div className="flex">
           <SideBar />
-          <div className="w-[70%] pl-8">{children}</div>
+          <div className="w-full px-8">{children}</div>
           <Toaster />
         </div>
       </div>

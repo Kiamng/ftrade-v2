@@ -34,6 +34,8 @@ const UserProductList = () => {
           creatorId: session.data?.user?.accountId as string,
           pageSize: 10,
           pageNumber: currentPage,
+          sortBy: "createdDate",
+          sortAscending: false,
         });
 
         setProductListInfor(productResponse);
