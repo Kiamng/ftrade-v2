@@ -11,7 +11,7 @@ const SideBar = () => {
   };
 
   return (
-    <div className="w-[400px] flex flex-col">
+    <div className="w-[300px] flex flex-col">
       <Link href={"/profile/profileSetting/edit-profile"}>
         <Button
           variant={selectedButton === "editProfile" ? "secondary" : "ghost"}

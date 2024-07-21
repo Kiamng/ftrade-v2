@@ -68,11 +68,14 @@ export function DataTableRowActions<TData>({
           <span className="sr-only">Open menu</span>
         </Button>
       </DropdownMenuTrigger>
+
       <DropdownMenuContent align="end" className="w-[100px]">
         <DropdownMenuItem>
-          <Link href={`/profile/profileSetting/product/${product.productId}`}>
-            Update
-          </Link>
+          {product.status !== "Out of stock" && (
+            <Link href={`/profile/profileSetting/product/${product.productId}`}>
+              Update
+            </Link>
+          )}
         </DropdownMenuItem>
         {product.isDisplay === "true" ? (
           <DropdownMenuItem onClick={() => updateDisplay("false")}>

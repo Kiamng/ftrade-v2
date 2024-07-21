@@ -32,7 +32,7 @@ const LoggedUser = () => {
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <Link href="/profile">
+          <Link href={`/profile/${session?.user?.accountId}`}>
             <DropdownMenuItem>Profile</DropdownMenuItem>
           </Link>
 

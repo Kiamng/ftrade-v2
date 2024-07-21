@@ -31,9 +31,9 @@ const RatingSection = ({ product, isLoading, userRate }: RatingSectionProp) => {
   return (
     <div className="rated-secttion w-full flex flex-col border-2 rounded-2xl shadow-lg">
       <div className="w-full border-b text-2xl font-medium p-4">
-        Rating section ({product?.ratedCount ? product?.ratedCount : 0})
+        Rating section ({userRate ? userRate.length : 0})
       </div>
-      {product?.ratedCount === 0 || !product?.ratedCount ? (
+      {!userRate || userRate.length === 0 ? (
         <div className="w-full text-xl text-slate-400 font-normal p-4">
           This product has no ratings yet,
         </div>

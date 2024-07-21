@@ -1,27 +1,16 @@
+import ProductSectionLoadingPage from "@/app/(platform)/product/_components/product-section-loading";
 import ProductSection from "@/components/landing-page/product-section";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Product } from "@/types/product";
 import { LoaderCircle } from "lucide-react";
-import ProductSectionLoadingPage from "../../product/_components/product-section-loading";
 
 interface UserProductListProps {
   productList: Product[] | undefined;
-  viewMoreLoading: boolean;
-  totalPages: number | undefined;
-  handleViewMore: () => Promise<void>;
-  currentPage: number;
   isLoading: boolean;
 }
 
-const UserProductList = ({
-  currentPage,
-  productList,
-  viewMoreLoading,
-  totalPages,
-  handleViewMore,
-  isLoading,
-}: UserProductListProps) => {
+const UserProductList = ({ productList, isLoading }: UserProductListProps) => {
   return (
     <div className="w-[1400px] mx-auto space-y-4  ">
       {isLoading ? (
@@ -39,16 +28,6 @@ const UserProductList = ({
         </div>
       )}
       <Separator />
-      {viewMoreLoading && <LoaderCircle className="animate-spin mx-auto" />}
-      <div className="w-full flex justify-center">
-        {currentPage === totalPages ? (
-          "No more products"
-        ) : (
-          <Button variant="link" onClick={() => handleViewMore()}>
-            View more
-          </Button>
-        )}
-      </div>
     </div>
   );
 };

@@ -2,18 +2,17 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Account } from "@/types/account";
-import { Product, ProductList, updateProductStatusType } from "@/types/product";
+import { Product, ProductList } from "@/types/product";
 import Link from "next/link";
 import defaultUserImg from "@/assets/img/user/default-avatar-icon-of-social-media-user-vector.jpg";
 import defaultimg from "@/assets/img/product/default-img.webp";
 import { format } from "date-fns";
 import { Separator } from "@/components/ui/separator";
 import ProductInformationLoading from "./product-information-loading";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { createRequest } from "@/app/api/request-history/request-history.api";
-import { Request, RequestForm, RequestListInfor } from "@/types/request";
-import { useSession } from "next-auth/react";
+import { RequestForm, RequestListInfor } from "@/types/request";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import {
   getAllProduct,
@@ -68,12 +67,6 @@ const ProductInformationDetail = ({
     sellerId: creator?.accountId as string,
     status: "PendingExchange",
   };
-
-  // const updateStatusValue: updateProductStatusType = {
-  //   denyRes: product?.denyRes as string,
-  //   isDisplay: product?.isDisplay as string,
-  //   status: "InExchange",
-  // };
   const { toast } = useToast();
 
   const hanldeCreateRequest = async () => {
@@ -120,14 +113,6 @@ const ProductInformationDetail = ({
     <div>
       <div className="flex w-full justify-between py-4">
         <h2 className="text-3xl font-semibold ">{product?.title}</h2>
-        <div className="flex space-x-2 items-center">
-          <p className="text-sm">
-            {product?.ratedCount ? product.ratedCount : 0} Rated
-          </p>
-          <p className="text-sm">
-            {product?.commentCount ? product.commentCount : 0} Comments
-          </p>
-        </div>
       </div>
       <Separator />
       <div className="flex space-x-6 mt-4">
@@ -157,9 +142,14 @@ const ProductInformationDetail = ({
           </div>
           <Separator />
           <div className="flex w-full justify-between">
-            <Badge className="text-2xl font-normal">
-              {product?.price === 0 ? "Free" : `${product?.price} VND`}
-            </Badge>
+            {product?.genre.name === "Sell" && (
+              <Badge className="text-2xl font-normal">
+                {product?.price === 0
+                  ? "Free"
+                  : `${product?.price.toLocaleString()} VND`}
+              </Badge>
+            )}
+
             <Badge className="text-2xl font-normal">
               {product?.genre.name}
             </Badge>
@@ -187,7 +177,11 @@ const ProductInformationDetail = ({
               <span className="font-normal"> {product?.description}</span>
             </div>
           </div>
-          {userId === creator?.accountId ? (
+          {product?.status === "Out of stock" ? (
+            <Button disabled={true} className="w-full" variant={"destructive"}>
+              Out of stock
+            </Button>
+          ) : userId === creator?.accountId && product?.quantity! > 0 ? (
             <></>
           ) : isPending ? (
             <Button

@@ -71,7 +71,7 @@ export function RequestHistoryRowActions<TData>({
         request.productSeller.productId,
         session.data?.user?.token as string,
         "",
-        "Approved",
+        "Out of stock",
         "true"
       );
       // console.log("updateSellerProductStatus :", updateSellerProductStatus);
@@ -81,7 +81,7 @@ export function RequestHistoryRowActions<TData>({
           request.productBuyer.productId,
           session.data?.user?.token as string,
           "",
-          "Approved",
+          "Out of stock",
           "true"
         );
         // console.log("updateBuyerProductStatus: ", updateBuyerProductStatus);
@@ -103,19 +103,6 @@ export function RequestHistoryRowActions<TData>({
     } finally {
       setIsPending(false);
       // window.location.reload();
-    }
-  };
-
-  const updateProductsStatus = async () => {
-    try {
-      setIsPending(true);
-
-      toast.success("Rated successfully !");
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsPending(false);
-      window.location.reload();
     }
   };
   const hanldeDeleteRequest = async () => {

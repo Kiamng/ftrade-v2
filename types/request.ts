@@ -1,5 +1,6 @@
 import { Account } from "./account";
 import { Product } from "./product";
+import { Rate } from "./rate";
 
 export type RequestForm = {
   buyerId: string;
@@ -51,4 +52,14 @@ export type yourRequest = {
   productSeller: Product;
   createdDate: Date;
   status: string;
+};
+
+export type doneRequestData = {
+  requestId: string;
+  seller: Account;
+  buyer: Account;
+  productBuyer: Product | null;
+  productSeller: Product;
+  createdDate: Date;
+  rate: Rate;
 };

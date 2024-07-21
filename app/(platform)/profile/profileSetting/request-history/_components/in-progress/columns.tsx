@@ -1,13 +1,13 @@
 import { ColumnDef } from "@tanstack/react-table";
 
 import { Checkbox } from "@/components/ui/checkbox";
-import { DataTableColumnHeader } from "../../../../../../components/data-table-column-header";
 
 import { requestTableData, yourRequest } from "@/types/request";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { RequestHistoryRowActions } from "./row-action";
 import Link from "next/link";
+import { DataTableColumnHeader } from "@/components/data-table-column-header";
+import { RequestHistoryRowActions } from "./row-action";
 
 export const requestHistoryColumns: ColumnDef<yourRequest>[] = [
   {

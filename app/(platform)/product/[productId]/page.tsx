@@ -1,9 +1,5 @@
 "use client";
-import {
-  END_POINT,
-  getAllProduct,
-  getProductById,
-} from "@/app/api/product/product.api";
+import { getAllProduct, getProductById } from "@/app/api/product/product.api";
 import { Product, ProductList } from "@/types/product";
 import { useEffect, useState } from "react";
 import React from "react";
@@ -18,11 +14,10 @@ import {
   deleteRequest,
   getAllRequest,
 } from "@/app/api/request-history/request-history.api";
-import { RequestForm, RequestListInfor } from "@/types/request";
+import { RequestListInfor } from "@/types/request";
 import { toast } from "@/components/ui/use-toast";
 import { getAllRate } from "@/app/api/rate/rate.api";
-import { Rate, RateListInfor, userRate } from "@/types/rate";
-import axiosServices from "@/lib/axiosClient";
+import { RateListInfor, userRate } from "@/types/rate";
 import { useRouter } from "next/navigation";
 
 interface ProductDetailPageProps {
@@ -141,7 +136,9 @@ const ProductDetailPage = ({ params }: ProductDetailPageProps) => {
           product={product}
           isLoading={isLoading}
         />
-        <CommentSection isLoading={isLoading} product={product} />
+        {product?.status !== "Out of stock" && (
+          <CommentSection isLoading={isLoading} product={product} />
+        )}
       </div>
     </div>
   );

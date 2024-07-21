@@ -7,36 +7,13 @@ import { DataTableColumnHeader } from "../../../../../../components/data-table-c
 import { Product } from "@/types/product";
 import { labels, statuses } from "@/data/data";
 import { DataTableRowActions } from "@/components/data-table-row-actions";
+import { format } from "date-fns";
 
 interface Category {
   name: string;
 }
 const shouldIncludeDenyRes = true;
 export const columns: ColumnDef<Product>[] = [
-  // {
-  //   id: "select",
-  //   header: ({ table }) => (
-  //     <Checkbox
-  //       checked={
-  //         table.getIsAllPageRowsSelected() ||
-  //         (table.getIsSomePageRowsSelected() && "indeterminate")
-  //       }
-  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-  //       aria-label="Select all"
-  //       className="translate-y-[2px]"
-  //     />
-  //   ),
-  //   cell: ({ row }) => (
-  //     <Checkbox
-  //       checked={row.getIsSelected()}
-  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
-  //       aria-label="Select row"
-  //       className="translate-y-[2px]"
-  //     />
-  //   ),
-  //   enableSorting: false,
-  //   enableHiding: false,
-  // },
   {
     accessorKey: "productId",
   },
@@ -108,17 +85,24 @@ export const columns: ColumnDef<Product>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Status" />
     ),
-    cell: ({ row }) => <span>{row.original.status}</span>,
+    cell: ({ row }) => (
+      <span>
+        {row.original.status}{" "}
+        {row.original.denyRes ? <span>, {row.original.denyRes}</span> : ""}
+      </span>
+    ),
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     },
   },
   {
-    accessorKey: "denyRes",
+    accessorKey: "createdDate",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Reason" />
+      <DataTableColumnHeader column={column} title="Created date" />
     ),
-    cell: ({ row }) => <span>{row.original.denyRes}</span>,
+    cell: ({ row }) => (
+      <span>{format(row.original.createdDate, "HH:mm dd/MM/yyyy")}</span>
+    ),
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     },

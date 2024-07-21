@@ -50,7 +50,6 @@ import { getAllCities } from "@/app/api/city/city.api";
 import { Separator } from "@/components/ui/separator";
 import { uploadImage } from "@/app/api/image/image.apit";
 import defaultImg from "@/assets/img/product/default-img.webp";
-import { UpdateProductAction } from "@/actions/product/updateProduct";
 import { CornerDownLeft } from "lucide-react";
 interface EditProductPageProps {
   params: { productId: string };
@@ -58,21 +57,24 @@ interface EditProductPageProps {
 
 const EditProductPage = ({ params }: EditProductPageProps) => {
   const [productImgURL, setProductImgURL] = useState<string>("");
-  const [isFree, setIsFree] = useState<boolean>(false);
+
   const { toast } = useToast();
+  const session = useSession();
+  const [preview, setPreview] = useState("");
+  const router = useRouter();
+
   const [isPending, setIsPending] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [noSell, setNoSell] = useState<boolean>(false);
+
   const [genres, setGenres] = useState<Genre[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [cities, setCities] = useState<City[]>([]);
   const [product, setProduct] = useState<Product>();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isEdit, setIsEdit] = useState<boolean>(false);
-  const session = useSession();
-  const [preview, setPreview] = useState("");
   const [imageState, setImageState] = useState<File>();
+
   const token = session.data?.user?.token;
-  const userId = session.data?.user?.accountId;
-  const router = useRouter();
 
   const handleGoBack = () => {
     router.back();
@@ -156,11 +158,12 @@ const EditProductPage = ({ params }: EditProductPageProps) => {
     }
   };
   const handleGenre = (genreName: string) => {
-    if (genreName === "Gift") {
-      setIsFree(true);
+    if (genreName === "Gift" || genreName === "Exchange") {
+      setNoSell(true);
       form.setValue("price", 0);
+      form.setValue("quantity", 1);
     } else {
-      setIsFree(false);
+      setNoSell(false);
     }
   };
 
@@ -416,7 +419,7 @@ const EditProductPage = ({ params }: EditProductPageProps) => {
                                 <Input
                                   className="w-[190px]"
                                   type="number"
-                                  disabled={isPending || isFree || !isEdit}
+                                  disabled={isPending || noSell || !isEdit}
                                   {...field}
                                 />
                               </FormControl>
@@ -434,7 +437,7 @@ const EditProductPage = ({ params }: EditProductPageProps) => {
                                 <Input
                                   className="w-[190px]"
                                   type="number"
-                                  disabled={isPending || !isEdit}
+                                  disabled={isPending || noSell || !isEdit}
                                   {...field}
                                 />
                               </FormControl>
