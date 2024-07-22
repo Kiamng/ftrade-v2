@@ -13,6 +13,7 @@ export const END_POINT = {
 
 export const getAllProduct = async ({
   token,
+  title,
   creatorId,
   status,
   pageNumber,
@@ -25,6 +26,7 @@ export const getAllProduct = async ({
   sortAscending,
 }: {
   token: string;
+  title?: string;
   creatorId?: string;
   status?: string;
   pageNumber?: number;
@@ -37,6 +39,7 @@ export const getAllProduct = async ({
   sortAscending?: boolean;
 }): Promise<ProductList> => {
   const params = new URLSearchParams();
+  if (title) params.append("Title", title);
   if (creatorId) params.append("CreatorId", creatorId);
   if (category) params.append("CategoryName", category);
   if (city) params.append("CityName", city);

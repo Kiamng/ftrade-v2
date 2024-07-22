@@ -18,6 +18,7 @@ import FilterSection from "@/components/landing-page/filter-section";
 import { getAllCategories } from "@/app/api/category/category.api";
 import { getAllCities } from "@/app/api/city/city.api";
 import { getAllGenres } from "@/app/api/genre/genre.api";
+import { Input } from "@/components/ui/input";
 
 export default function Browse() {
   const [productList, setProductList] = useState<Product[]>([]);
@@ -34,6 +35,7 @@ export default function Browse() {
   const [category, setCategory] = useState<Category[]>([]);
   const [genre, setGenre] = useState<Genre[]>([]);
   const [filter, setFilter] = useState<boolean>(false);
+  const [title, setTitle] = useState<string>("");
   const session = useSession();
   const { toast } = useToast();
   useEffect(() => {
@@ -42,6 +44,7 @@ export default function Browse() {
         setIsLoading(true);
         const response = await getAllProduct({
           token: session.data?.user?.token as string,
+          title: title ? title : "",
           status: "Approved",
           pageNumber: currentPage,
           category: selectedCategory !== "none" ? selectedCategory : undefined,
@@ -68,7 +71,7 @@ export default function Browse() {
       // Initial fetch when component mounts
       fetchData();
     }
-  }, [filter]);
+  }, [filter, title]);
 
   useEffect(() => {
     const fetchFilterData = async () => {
@@ -117,6 +120,10 @@ export default function Browse() {
     } finally {
       setViewMoreLoading(false);
     }
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setTitle(e.target.value);
   };
 
   const handleCityChange = (value: string) => {
@@ -175,10 +182,16 @@ export default function Browse() {
       </BackgroundGradientAnimation>
 
       <div className="w-[1400px] mx-auto space-y-4 mt-[40px]">
+        <div>
+          <h2 className="text-3xl font-semibold mx-auto">List of products</h2>
+        </div>
         <div className="w-full flex justify-between">
-          <div>
-            <h2 className="text-3xl font-semibold mx-auto">List of products</h2>
-          </div>
+          <Input
+            className="w-[400px]"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Search name"
+          ></Input>
 
           <FilterSection
             handleCategoryChange={handleCategoryChange}
