@@ -156,14 +156,20 @@ const ProductCreateForm = () => {
     return acceptedTypes.includes(file.type);
   };
 
-  const handleOnChangeSeleteImage = (
+  const handleOnChangeSelectImage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target?.files?.[0];
     if (file && isValidFileType(file)) {
-      const { files, displayUrl } = getImageData(event);
-      setPreview(displayUrl);
-      setImageState(files[0]);
+      const imageData = getImageData(event);
+      if (imageData) {
+        const { file: imageFile, displayUrl } = imageData;
+        setPreview(displayUrl);
+        setImageState(imageFile);
+      } else {
+        setImageState(undefined);
+        alert("No file selected or invalid file type!");
+      }
     } else {
       setImageState(undefined);
       alert("Invalid file type!");
@@ -394,7 +400,7 @@ const ProductCreateForm = () => {
                               disabled={isPending}
                               {...field}
                               onChange={(event) => {
-                                handleOnChangeSeleteImage(event);
+                                handleOnChangeSelectImage(event);
                               }}
                               className="hidden"
                             />
@@ -448,3 +454,17 @@ const ProductCreateForm = () => {
 };
 
 export default ProductCreateForm;
+
+// const handleOnChangeSeleteImage = (
+//   event: React.ChangeEvent<HTMLInputElement>
+// ) => {
+//   const file = event.target?.files?.[0];
+//   if (file && isValidFileType(file)) {
+//     const { files, displayUrl } = getImageData(event);
+//     setPreview(displayUrl);
+//     setImageState(files[0]);
+//   } else {
+//     setImageState(undefined);
+//     alert("Invalid file type!");
+//   }
+// };

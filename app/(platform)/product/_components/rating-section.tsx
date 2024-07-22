@@ -35,7 +35,7 @@ const RatingSection = ({ product, isLoading, userRate }: RatingSectionProp) => {
       </div>
       {!userRate || userRate.length === 0 ? (
         <div className="w-full text-xl text-slate-400 font-normal p-4">
-          This product has no ratings yet,
+          This product has no ratings yet
         </div>
       ) : (
         <div className="w-full flex flex-col">

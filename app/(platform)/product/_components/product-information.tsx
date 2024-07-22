@@ -31,6 +31,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
+import { ShoppingCart } from "lucide-react";
+import { CartItems, useCart } from "../../cart/context/cart-context";
 interface ProductInformationDetailProps {
   product: Product | undefined;
   creator: Account | undefined;
@@ -52,6 +54,8 @@ const ProductInformationDetail = ({
   userProductList,
   hanldeDeleteRequest,
 }: ProductInformationDetailProps) => {
+  const cart = useCart();
+
   const [isPending, setIsPending] = useState<boolean>(false);
 
   const [productBuyerId, setProductBuyerId] = useState<string>("");
@@ -73,13 +77,16 @@ const ProductInformationDetail = ({
     try {
       setIsPending(true);
       const response = await createRequest(requestValue, token);
-      const updateProduct = await updateProductStatus(
-        requestValue.productBuyerId as string,
-        token,
-        "",
-        "PendingExchange",
-        "true"
-      );
+      if (productBuyerId) {
+        const updateProduct = await updateProductStatus(
+          requestValue.productBuyerId as string,
+          token,
+          "",
+          "PendingExchange",
+          "true"
+        );
+      }
+
       if (response === 200) {
         toast({
           description: `Your request is created susccessfully ✓ `,
@@ -98,6 +105,29 @@ const ProductInformationDetail = ({
       });
     } finally {
       setIsPending(false);
+    }
+  };
+
+  const handleAddToCart = () => {
+    const checkCart = cart.cartItems.find(
+      (item) => item.productId === product?.productId
+    );
+    if (checkCart) {
+      if (checkCart.cartQuantity === product?.quantity) {
+        toast({
+          description: "You reached max quantity of this product",
+          variant: "destructive",
+        });
+      }
+      return;
+    } else if (product?.productId && creator?.userName) {
+      const productWithCartQuantity = {
+        ...product,
+        cartQuantity: 1,
+        creatorName: creator?.userName,
+      };
+      cart.addToCart(productWithCartQuantity);
+      toast({ description: "Product added to cart!" });
     }
   };
 
@@ -177,83 +207,104 @@ const ProductInformationDetail = ({
               <span className="font-normal"> {product?.description}</span>
             </div>
           </div>
-          {product?.status === "Out of stock" ? (
-            <Button disabled={true} className="w-full" variant={"destructive"}>
-              Out of stock
-            </Button>
-          ) : userId === creator?.accountId && product?.quantity! > 0 ? (
-            <></>
-          ) : isPending ? (
+
+          {product?.genre.name === "Sell" && userId !== creator?.accountId ? (
             <Button
-              className="w-full"
-              type="submit"
-              disabled={isPending}
-              onClick={() => {
-                toast;
-              }}
+              onClick={handleAddToCart}
+              className="w-full space"
+              variant={"outline"}
             >
-              <AiOutlineLoading3Quarters className="mr-2 h-4 w-4 animate-spin" />
-              Processing
-            </Button>
-          ) : thisRequest ? (
-            <Button
-              onClick={() => hanldeDeleteRequest(thisRequest?.id!)}
-              className="w-full"
-            >
-              Requested
+              <span>Add to cart</span>
+              <ShoppingCart size={"20"} />
             </Button>
           ) : (
-            <AlertDialog>
-              <AlertDialogTrigger className="w-full" asChild>
-                <Button variant="outline">Request</Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="">
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                  {product?.genre.name === "Exchange" && (
-                    <AlertDialogDescription className="overflow-hidden overflow-y-scroll max-h-[800px]">
-                      {userProductList?.totalItem! > 0
-                        ? userProductList?.items.map((product) => (
-                            <label
-                              key={product.productId}
-                              className="w-full flex"
-                            >
-                              <div className="w-full">
-                                <img
-                                  src={product.imagePro}
-                                  height={0}
-                                  width={0}
-                                  className="w-full h-full object-cover"
-                                ></img>
-                              </div>
-                              <span>{product.title}</span>
-                              <Input
-                                type="radio"
-                                onClick={() =>
-                                  setProductBuyerId(product.productId)
-                                }
-                              ></Input>
-                            </label>
-                          ))
-                        : "You have no product that can be traded with the user product"}
-                    </AlertDialogDescription>
-                  )}
-                </AlertDialogHeader>
-                {userProductList?.totalItem! > 0 ? (
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={hanldeCreateRequest}>
-                      Create
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                ) : (
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  </AlertDialogFooter>
-                )}
-              </AlertDialogContent>
-            </AlertDialog>
+            <></>
           )}
+          {product?.genre.name !== "Sell" &&
+            (product?.status === "SoldOut" ? (
+              <Button
+                disabled={true}
+                className="w-full"
+                variant={"destructive"}
+              >
+                Sold out
+              </Button>
+            ) : userId === creator?.accountId && product?.quantity! > 0 ? (
+              <></>
+            ) : isPending ? (
+              <Button
+                className="w-full"
+                type="submit"
+                disabled={isPending}
+                onClick={() => {
+                  toast;
+                }}
+              >
+                <AiOutlineLoading3Quarters className="mr-2 h-4 w-4 animate-spin" />
+                Processing
+              </Button>
+            ) : thisRequest ? (
+              <Button
+                onClick={() => hanldeDeleteRequest(thisRequest?.id!)}
+                className="w-full"
+              >
+                Requested
+              </Button>
+            ) : (
+              <AlertDialog>
+                <AlertDialogTrigger className="w-full" asChild>
+                  <Button variant="outline">Request</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    {product?.genre.name === "Exchange" && (
+                      <AlertDialogDescription className="overflow-hidden overflow-y-scroll max-h-[800px]">
+                        {userProductList?.totalItem! > 0
+                          ? userProductList?.items.map((product) => (
+                              <label
+                                key={product.productId}
+                                className="w-full flex"
+                              >
+                                <div className="w-full">
+                                  <img
+                                    src={product.imagePro}
+                                    height={0}
+                                    width={0}
+                                    className="w-full h-full object-cover"
+                                  ></img>
+                                </div>
+                                <span>{product.title}</span>
+                                <Input
+                                  type="radio"
+                                  onClick={() =>
+                                    setProductBuyerId(product.productId)
+                                  }
+                                ></Input>
+                              </label>
+                            ))
+                          : "You have no product that can be traded with the user product"}
+                      </AlertDialogDescription>
+                    )}
+                  </AlertDialogHeader>
+                  {userProductList?.totalItem! === 0 ? (
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={hanldeCreateRequest}>
+                        Create
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  ) : (
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={hanldeCreateRequest}>
+                        Create
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  )}
+                </AlertDialogContent>
+              </AlertDialog>
+            ))}
         </div>
       </div>
     </div>

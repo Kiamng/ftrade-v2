@@ -32,6 +32,16 @@ const SideBar = () => {
           Product list
         </Button>
       </Link>
+      <Link href={"/profile/profileSetting/order-history"}>
+        <Button
+          variant={selectedButton === "orderHistory" ? "secondary" : "ghost"}
+          size={"lg"}
+          onClick={() => handleButtonClick("orderHistory")}
+          className="w-full"
+        >
+          Order history
+        </Button>
+      </Link>
       <Link href={"/profile/profileSetting/request-from-buyer"}>
         <Button
           variant={

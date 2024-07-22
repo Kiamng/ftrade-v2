@@ -54,6 +54,7 @@ const InProgressRequestPage = ({
           PageSize: 10,
         });
         setUserRequestList(userRequestList);
+        console.log(userRequestList);
 
         const userProductList = await getAllProduct({
           token: token,
@@ -68,15 +69,14 @@ const InProgressRequestPage = ({
           (product) =>
             product.status === "Approved" || product.status === "InExchange"
         );
+        console.log(filteredProducts);
 
         const requestTableDataArray: requestTableData[] = [];
         for (const product of filteredProducts) {
           const listProductByRequest = await Promise.all(
             userRequestList.items
               .filter(
-                (request) =>
-                  request.productSellerId === product.productId &&
-                  request.status !== "Done"
+                (request) => request.productSellerId === product.productId
               )
               .map(async (request) => {
                 const buyer = await getUserById(request.buyerId, token);
