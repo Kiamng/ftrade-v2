@@ -21,7 +21,7 @@ export default {
             });
             const user = response.data;
             if (user) {
-              if (user.role.roleName === "Admin") {
+              if (user.role.name === "Admin") {
                 return null;
               }
               return user;

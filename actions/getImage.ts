@@ -1,12 +1,11 @@
 export function getImageData(event: React.ChangeEvent<HTMLInputElement>) {
-  const dataTransfer = new DataTransfer();
+  const file = event.target.files?.[0];
 
-  Array.from(event.target.files!).forEach((image) =>
-    dataTransfer.items.add(image)
-  );
+  if (!file) {
+    return null;
+  }
 
-  const files = dataTransfer.files;
-  const displayUrl = URL.createObjectURL(event.target.files![0]);
+  const displayUrl = URL.createObjectURL(file);
 
-  return { files, displayUrl };
+  return { file, displayUrl };
 }

@@ -86,14 +86,20 @@ const EditProfilePage = () => {
     document.getElementById("imageImporter")?.click();
   };
 
-  const handleOnChangeSeleteImage = (
+  const handleOnChangeSelectImage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target?.files?.[0];
     if (file && isValidFileType(file)) {
-      const { files, displayUrl } = getImageData(event);
-      setPreview(displayUrl);
-      setImageState(files[0]);
+      const imageData = getImageData(event);
+      if (imageData) {
+        const { file: imageFile, displayUrl } = imageData;
+        setPreview(displayUrl);
+        setImageState(imageFile);
+      } else {
+        setImageState(null);
+        alert("No file selected or invalid file type!");
+      }
     } else {
       setImageState(null);
       alert("Invalid file type!");
@@ -227,7 +233,7 @@ const EditProfilePage = () => {
                 name="file"
                 id="imageImporter"
                 className="hidden"
-                onChange={(event) => handleOnChangeSeleteImage(event)}
+                onChange={(event) => handleOnChangeSelectImage(event)}
               />
               <div className="flex flex-row gap-5">
                 <Button

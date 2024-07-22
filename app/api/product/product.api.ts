@@ -147,8 +147,6 @@ export const updateProduct = async (
   productId: string,
   isDisplay: string
 ) => {
-  console.log("api");
-
   const response = await axiosClient.put(
     `${END_POINT.UPDATE_PRODUCT}?id=${productId}`,
     {

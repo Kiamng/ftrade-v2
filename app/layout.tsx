@@ -4,6 +4,7 @@ import "./globals.css";
 import { Suspense } from "react";
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "@/components/ui/toaster";
+import { CartProvider } from "./(platform)/cart/context/cart-context";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,8 +18,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <SessionProvider>
           <Suspense>
-            <div className="overflow-hidden">{children}</div>
-            <Toaster />
+            <CartProvider>
+              <div className="overflow-hidden">{children}</div>
+              <Toaster />
+            </CartProvider>
           </Suspense>
         </SessionProvider>
       </body>

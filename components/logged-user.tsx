@@ -35,7 +35,9 @@ const LoggedUser = () => {
           <Link href={`/profile/${session?.user?.accountId}`}>
             <DropdownMenuItem>Profile</DropdownMenuItem>
           </Link>
-
+          <Link href={`/profile/profileSetting/order-history`}>
+            <DropdownMenuItem>Order history</DropdownMenuItem>
+          </Link>
           <DropdownMenuItem>Billing</DropdownMenuItem>
           <Link href="/profile/profileSetting/edit-profile">
             <DropdownMenuItem>Settings</DropdownMenuItem>

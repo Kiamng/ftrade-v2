@@ -71,7 +71,7 @@ export function RequestHistoryRowActions<TData>({
         request.productSeller.productId,
         session.data?.user?.token as string,
         "",
-        "Out of stock",
+        "SoldOut",
         "true"
       );
       // console.log("updateSellerProductStatus :", updateSellerProductStatus);
@@ -81,7 +81,7 @@ export function RequestHistoryRowActions<TData>({
           request.productBuyer.productId,
           session.data?.user?.token as string,
           "",
-          "Out of stock",
+          "SoldOut",
           "true"
         );
         // console.log("updateBuyerProductStatus: ", updateBuyerProductStatus);
